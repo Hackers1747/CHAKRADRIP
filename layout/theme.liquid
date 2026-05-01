@@ -1,0 +1,531 @@
+<!doctype html>
+<html
+  lang="{{ request.locale.iso_code }}"
+  class="no-js"
+  data-color-scheme="dark"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height">
+    <meta name="theme-color" content="#0a0a0a">
+
+    <!-- ============================================================
+         TITLE & META
+    ============================================================ -->
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    <!-- ============================================================
+         CANONICAL & HREFLANG
+    ============================================================ -->
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon != blank %}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif %}
+
+    <!-- ============================================================
+         PRECONNECTS â€” performance
+    ============================================================ -->
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- ============================================================
+         TYPOGRAPHY â€” Bebas Neue (display) + Rajdhani (body)
+         Rajdhani is angular, technical, and pairs perfectly with
+         the dark-energy CHAKRADRIP aesthetic
+    ============================================================ -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    >
+
+    <!-- ============================================================
+         SHOPIFY REQUIRED â€” scripts, tracking, app injections
+    ============================================================ -->
+    {{ content_for_header }}
+
+    <!-- ============================================================
+         DESIGN TOKENS â€” single source of truth
+    ============================================================ -->
+    <style>
+      :root {
+        /* â”€â”€ Palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --cd-black:        #0a0a0a;
+        --cd-surface-1:    #0f0f0f;   /* card backgrounds    */
+        --cd-surface-2:    #141414;   /* elevated surfaces   */
+        --cd-surface-3:    #1c1c1c;   /* borders, dividers   */
+        --cd-neon-red:     #ff1a1a;   /* primary accent      */
+        --cd-blood-red:    #8b0000;   /* deep accent         */
+        --cd-crimson:      #c0392b;   /* mid-tone accent     */
+        --cd-text:         #e8e8e8;   /* primary text        */
+        --cd-text-muted:   #666666;   /* secondary text      */
+        --cd-text-ghost:   #333333;   /* decorative text     */
+        --cd-white:        #ffffff;
+
+        /* â”€â”€ Glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --cd-glow-red:     0 0 8px rgba(255, 26, 26, 0.6),
+                           0 0 24px rgba(255, 26, 26, 0.25);
+        --cd-glow-blood:   0 0 12px rgba(139, 0, 0, 0.5);
+
+        /* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --font-display:    'Bebas Neue', 'Impact', sans-serif;
+        --font-body:       'Rajdhani', 'Arial Narrow', sans-serif;
+        --font-mono:       'Share Tech Mono', 'Courier New', monospace;
+
+        /* â”€â”€ Scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --text-xs:   0.75rem;   /*  12px */
+        --text-sm:   0.875rem;  /*  14px */
+        --text-base: 1rem;      /*  16px */
+        --text-md:   1.125rem;  /*  18px */
+        --text-lg:   1.25rem;   /*  20px */
+        --text-xl:   1.5rem;    /*  24px */
+        --text-2xl:  2rem;      /*  32px */
+        --text-3xl:  3rem;      /*  48px */
+        --text-4xl:  4.5rem;    /*  72px */
+        --text-5xl:  7rem;      /* 112px */
+
+        /* â”€â”€ Spacing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --space-1:   4px;
+        --space-2:   8px;
+        --space-3:   12px;
+        --space-4:   16px;
+        --space-6:   24px;
+        --space-8:   32px;
+        --space-12:  48px;
+        --space-16:  64px;
+        --space-24:  96px;
+        --space-32:  128px;
+
+        /* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --max-width:     1440px;
+        --content-width: 1200px;
+        --nav-height:    64px;
+        --page-padding:  clamp(16px, 4vw, 48px);
+
+        /* â”€â”€ Radius â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --radius-sharp: 1px;
+        --radius-sm:    4px;
+        --radius-md:    6px;
+
+        /* â”€â”€ Transitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --ease-fast:   0.12s cubic-bezier(0.4, 0, 0.2, 1);
+        --ease-med:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --ease-slow:   0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        --ease-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        /* â”€â”€ Z-index stack â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        --z-base:       1;
+        --z-raised:     10;
+        --z-dropdown:   100;
+        --z-sticky:     200;
+        --z-overlay:    300;
+        --z-modal:      400;
+        --z-toast:      500;
+      }
+    </style>
+
+    <!-- ============================================================
+         GLOBAL BASE STYLES
+    ============================================================ -->
+    <style>
+      /* â”€â”€ Reset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+        scrollbar-color: var(--cd-blood-red) var(--cd-surface-1);
+        scrollbar-width: thin;
+      }
+
+      html.no-js .js-only   { display: none !important; }
+      html.js    .no-js-only { display: none !important; }
+
+      ::-webkit-scrollbar              { width: 4px; }
+      ::-webkit-scrollbar-track        { background: var(--cd-surface-1); }
+      ::-webkit-scrollbar-thumb        { background: var(--cd-blood-red); border-radius: 2px; }
+      ::-webkit-scrollbar-thumb:hover  { background: var(--cd-neon-red); }
+
+      ::selection {
+        background: var(--cd-neon-red);
+        color: var(--cd-black);
+      }
+
+      body {
+        font-family:      var(--font-body);
+        font-size:        var(--text-md);
+        font-weight:      400;
+        line-height:      1.6;
+        color:            var(--cd-text);
+        background-color: var(--cd-black);
+        -webkit-font-smoothing:  antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x:       hidden;
+      }
+
+      /* â”€â”€ Noise texture overlay â€” full-site grain â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: var(--z-toast);
+        animation: noise-drift 8s steps(2) infinite;
+      }
+
+      @keyframes noise-drift {
+        0%, 100% { transform: translate(0, 0); }
+        10%       { transform: translate(-1px, 1px); }
+        20%       { transform: translate(1px, -1px); }
+        30%       { transform: translate(-2px, -1px); }
+        40%       { transform: translate(1px, 2px); }
+        50%       { transform: translate(-1px, 1px); }
+        60%       { transform: translate(2px, -2px); }
+        70%       { transform: translate(0px, 2px); }
+        80%       { transform: translate(-2px, 0px); }
+        90%       { transform: translate(1px, -1px); }
+      }
+
+      /* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      h1, h2, h3, h4, h5, h6 {
+        font-family:    var(--font-display);
+        letter-spacing: 0.04em;
+        line-height:    1.05;
+        color:          var(--cd-white);
+        text-transform: uppercase;
+      }
+
+      h1 { font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl)); }
+      h2 { font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl)); }
+      h3 { font-size: clamp(var(--text-xl),  3vw, var(--text-3xl)); }
+      h4 { font-size: var(--text-2xl); }
+      h5 { font-size: var(--text-xl); }
+      h6 { font-size: var(--text-lg); }
+
+      p { margin-bottom: var(--space-4); }
+      p:last-child { margin-bottom: 0; }
+
+      a {
+        color: var(--cd-neon-red);
+        text-decoration: none;
+        transition: color var(--ease-fast), opacity var(--ease-fast);
+      }
+
+      a:hover { color: var(--cd-white); }
+
+      img, video {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      button, [role="button"] {
+        cursor: pointer;
+        font-family: var(--font-body);
+        border: none;
+        background: none;
+      }
+
+      input, select, textarea {
+        font-family: var(--font-body);
+        font-size:   var(--text-base);
+        color:       var(--cd-text);
+        background:  var(--cd-surface-2);
+        border:      1px solid var(--cd-surface-3);
+        border-radius: var(--radius-sm);
+        padding:     var(--space-3) var(--space-4);
+        transition:  border-color var(--ease-fast), box-shadow var(--ease-fast);
+        outline:     none;
+        width:       100%;
+      }
+
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--cd-neon-red);
+        box-shadow:   0 0 0 2px rgba(255, 26, 26, 0.15);
+      }
+
+      /* â”€â”€ Layout helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .page-wrapper {
+        min-height: 100vh;
+        display:    flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+        padding-top: var(--nav-height);
+      }
+
+      .container {
+        max-width:  var(--content-width);
+        margin:     0 auto;
+        padding:    0 var(--page-padding);
+      }
+
+      .container--wide {
+        max-width: var(--max-width);
+        margin:    0 auto;
+        padding:   0 var(--page-padding);
+      }
+
+      .container--narrow {
+        max-width: 800px;
+        margin:    0 auto;
+        padding:   0 var(--page-padding);
+      }
+
+      /* â”€â”€ Utility classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .visually-hidden {
+        position:   absolute;
+        width:      1px;
+        height:     1px;
+        padding:    0;
+        margin:     -1px;
+        overflow:   hidden;
+        clip:       rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border:     0;
+      }
+
+      .text-neon   { color: var(--cd-neon-red); }
+      .text-blood  { color: var(--cd-blood-red); }
+      .text-muted  { color: var(--cd-text-muted); }
+      .text-mono   { font-family: var(--font-mono); }
+      .text-upper  { text-transform: uppercase; letter-spacing: 0.1em; }
+
+      .glow-red    { text-shadow: var(--cd-glow-red); }
+      .glow-border { box-shadow: inset 0 0 0 1px var(--cd-neon-red), var(--cd-glow-red); }
+
+      .divider {
+        border: none;
+        border-top: 1px solid var(--cd-surface-3);
+        margin: var(--space-8) 0;
+      }
+
+      .divider--red {
+        border-top-color: var(--cd-blood-red);
+      }
+
+      /* â”€â”€ Button system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .btn {
+        display:         inline-flex;
+        align-items:     center;
+        justify-content: center;
+        gap:             var(--space-2);
+        font-family:     var(--font-display);
+        font-size:       var(--text-lg);
+        letter-spacing:  0.08em;
+        text-transform:  uppercase;
+        padding:         var(--space-3) var(--space-8);
+        border-radius:   var(--radius-sharp);
+        transition:      all var(--ease-med);
+        position:        relative;
+        overflow:        hidden;
+        cursor:          pointer;
+        white-space:     nowrap;
+      }
+
+      .btn::before {
+        content:    '';
+        position:   absolute;
+        inset:      0;
+        background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.05));
+        opacity:    0;
+        transition: opacity var(--ease-med);
+      }
+
+      .btn:hover::before { opacity: 1; }
+
+      .btn--primary {
+        background: var(--cd-neon-red);
+        color:      var(--cd-black);
+        border:     2px solid var(--cd-neon-red);
+      }
+
+      .btn--primary:hover {
+        background:  var(--cd-blood-red);
+        border-color: var(--cd-blood-red);
+        color:       var(--cd-white);
+        box-shadow:  var(--cd-glow-red);
+        transform:   translateY(-1px);
+      }
+
+      .btn--outline {
+        background:   transparent;
+        color:        var(--cd-neon-red);
+        border:       2px solid var(--cd-neon-red);
+      }
+
+      .btn--outline:hover {
+        background: var(--cd-neon-red);
+        color:      var(--cd-black);
+        box-shadow: var(--cd-glow-red);
+        transform:  translateY(-1px);
+      }
+
+      .btn--ghost {
+        background: transparent;
+        color:      var(--cd-text-muted);
+        border:     1px solid var(--cd-surface-3);
+      }
+
+      .btn--ghost:hover {
+        border-color: var(--cd-neon-red);
+        color:        var(--cd-neon-red);
+      }
+
+      .btn--lg { padding: var(--space-4) var(--space-12); font-size: var(--text-xl); }
+      .btn--sm { padding: var(--space-2) var(--space-4);  font-size: var(--text-base); }
+
+      .btn[disabled], .btn.loading {
+        opacity: 0.5;
+        cursor:  not-allowed;
+        pointer-events: none;
+      }
+
+      /* â”€â”€ Loading spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .spinner {
+        width:  20px;
+        height: 20px;
+        border: 2px solid var(--cd-surface-3);
+        border-top-color: var(--cd-neon-red);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* â”€â”€ Page overlay (cart, modal bg) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .overlay {
+        position:   fixed;
+        inset:      0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(2px);
+        z-index:    var(--z-overlay);
+        opacity:    0;
+        visibility: hidden;
+        transition: opacity var(--ease-med), visibility var(--ease-med);
+      }
+
+      .overlay.is-active {
+        opacity:    1;
+        visibility: visible;
+      }
+
+      /* â”€â”€ Red accent bar â€” reusable section divider â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .accent-bar {
+        display: block;
+        width:   48px;
+        height:  3px;
+        background: linear-gradient(90deg, var(--cd-neon-red), var(--cd-blood-red));
+        margin-bottom: var(--space-4);
+      }
+
+      .accent-bar--center { margin-left: auto; margin-right: auto; }
+
+      /* â”€â”€ Announce badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      .badge {
+        display:        inline-flex;
+        align-items:    center;
+        font-family:    var(--font-display);
+        font-size:      var(--text-xs);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding:        2px 8px;
+        border-radius:  var(--radius-sharp);
+      }
+
+      .badge--new    { background: var(--cd-neon-red);  color: var(--cd-black); }
+      .badge--sold   { background: var(--cd-surface-3); color: var(--cd-text-muted); }
+      .badge--limited { background: var(--cd-blood-red); color: var(--cd-white); }
+
+      /* â”€â”€ Focus visible â€” accessibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      :focus-visible {
+        outline:        2px solid var(--cd-neon-red);
+        outline-offset: 3px;
+      }
+
+      /* â”€â”€ Media: reduced motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration:   0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration:  0.01ms !important;
+        }
+
+        body::before { animation: none; }
+      }
+
+      /* â”€â”€ Responsive base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+      @media (max-width: 768px) {
+        :root { --nav-height: 56px; }
+        h1 { font-size: clamp(var(--text-2xl), 10vw, var(--text-3xl)); }
+      }
+    </style>
+
+    <!-- ============================================================
+         LINKED ASSET STYLESHEETS
+         Load order: animations â†’ theme â†’ section-specific
+    ============================================================ -->
+    {{ 'animations.css' | asset_url | stylesheet_tag }}
+    {{ 'theme.css'      | asset_url | stylesheet_tag }}
+
+    <!-- ============================================================
+         STRUCTURED DATA â€” Organisation schema
+    ============================================================ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ shop.url | json }}
+      {%- if settings.social_instagram_link != blank -%}
+      ,"sameAs": [{{ settings.social_instagram_link | json }}]
+      {%- endif -%}
+    }
+    </script>
+
+    {%- if request.page_type == 'index' -%}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": {{ routes.search_url | append: '?q={search_term_string}' | json }}
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ shop.url | json }}
+    }
+    </script>
+    {%- endif -%}
+
+    {%- if request.page_type == 'product' -%}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": {{ product.title | json }},
+      "description": {{ product.descrip
