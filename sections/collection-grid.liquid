@@ -1,0 +1,199 @@
+{% comment %}
+  CHAKRADRIP — collection-grid.liquid
+  Collection page — filter bar + product grid
+{% endcomment %}
+
+<section class="collection-page section--sm">
+  <div class="container--wide">
+
+    <!-- Collection header -->
+    <div class="collection-header" data-reveal>
+      <div>
+        {%- if collection.image -%}
+          <div class="collection-header__image">
+            <img
+              src="{{ collection.image | image_url: width: 1400 }}"
+              alt="{{ collection.title }}"
+              loading="eager"
+              width="1400" height="400"
+            >
+            <div class="collection-header__overlay"></div>
+          </div>
+        {%- endif -%}
+        <div class="collection-header__content">
+          <p class="collection-header__eyebrow text-mono">
+            {{ collection.products_count }} {{ collection.products_count | pluralize: 'piece', 'pieces' }}
+          </p>
+          <h1 class="collection-header__title">{{ collection.title }}</h1>
+          {%- if collection.description != blank -%}
+            <p class="collection-header__desc">{{ collection.description }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter + Sort bar -->
+    <div class="collection-toolbar">
+      <!-- Sort -->
+      <div class="collection-sort">
+        <label for="sort-by" class="visually-hidden">Sort by</label>
+        <select id="sort-by" class="collection-sort__select" onchange="window.location.href = '{{ collection.url }}?sort_by=' + this.value">
+          {%- assign sort_options = collection.sort_options -%}
+          {%- for option in sort_options -%}
+            <option
+              value="{{ option.value }}"
+              {% if collection.sort_by == option.value %}selected{% endif %}
+            >
+              {{ option.name }}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+
+      <span class="collection-toolbar__count text-muted text-mono">
+        {{ collection.products_count }} items
+      </span>
+    </div>
+
+    <!-- Product grid -->
+    {%- paginate collection.products by section.settings.products_per_page -%}
+
+      {%- if collection.products_count > 0 -%}
+        <div class="product-grid" id="collection-grid">
+          {%- for product in collection.products -%}
+            <div class="animate-fade-up" style="animation-delay: {{ forloop.index0 | times: 0.05 }}s;">
+              {%- render 'product-card', product: product -%}
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <!-- Pagination -->
+        {%- if paginate.pages > 1 -%}
+          <nav class="pagination" aria-label="Collection pagination">
+            {%- if paginate.previous -%}
+              <a href="{{ paginate.previous.url }}" class="pagination__item" aria-label="Previous page">←</a>
+            {%- endif -%}
+
+            {%- for part in paginate.parts -%}
+              {%- if part.is_link -%}
+                <a href="{{ part.url }}" class="pagination__item">{{ part.title }}</a>
+              {%- elsif part.title == paginate.current_page -%}
+                <span class="pagination__item is-active" aria-current="page">{{ part.title }}</span>
+              {%- else -%}
+                <span class="pagination__item">{{ part.title }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if paginate.next -%}
+              <a href="{{ paginate.next.url }}" class="pagination__item" aria-label="Next page">→</a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+
+      {%- else -%}
+        <div class="empty-state">
+          <p class="empty-state__title">Nothing here yet</p>
+          <p class="empty-state__text">This collection is being charged up. Check back soon.</p>
+          <a href="{{ routes.root_url }}" class="btn btn--outline">Go Home</a>
+        </div>
+      {%- endif -%}
+
+    {%- endpaginate -%}
+
+  </div>
+</section>
+
+<style>
+  /* ── Collection header ───────────────────────────────── */
+  .collection-header { margin-bottom: var(--space-8); }
+
+  .collection-header__image {
+    position:      relative;
+    height:        240px;
+    overflow:      hidden;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-6);
+  }
+
+  .collection-header__image img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    filter:     saturate(0.7) brightness(0.5);
+  }
+
+  .collection-header__overlay {
+    position:   absolute;
+    inset:      0;
+    background: linear-gradient(180deg, transparent 30%, var(--cd-black) 100%);
+  }
+
+  .collection-header__content { padding: 0 var(--space-2); }
+
+  .collection-header__eyebrow {
+    font-size:      var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color:          var(--cd-neon-red);
+    margin-bottom:  var(--space-2);
+  }
+
+  .collection-header__title {
+    font-size:     clamp(var(--text-2xl), 5vw, var(--text-4xl));
+    margin-bottom: var(--space-3);
+  }
+
+  .collection-header__desc {
+    color:     var(--cd-text-muted);
+    max-width: 600px;
+  }
+
+  /* ── Toolbar ─────────────────────────────────────────── */
+  .collection-toolbar {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             var(--space-4);
+    margin-bottom:   var(--space-8);
+    padding-bottom:  var(--space-4);
+    border-bottom:   1px solid var(--cd-surface-3);
+    flex-wrap:       wrap;
+  }
+
+  .collection-toolbar__count {
+    font-size:      var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .collection-sort__select {
+    width:        auto;
+    font-family:  var(--font-display);
+    font-size:    var(--text-base);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding:      var(--space-2) var(--space-4);
+    cursor:       pointer;
+    min-width:    180px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection Grid",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 16,
+      "label": "Products per page"
+    }
+  ],
+  "presets": [
+    { "name": "Collection Grid" }
+  ]
+}
+{% endschema %}
