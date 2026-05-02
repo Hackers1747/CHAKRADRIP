@@ -1,0 +1,271 @@
+/* ============================================================
+   CHAKRADRIP — animations.css
+   All keyframes, glitch effects, ink-bleed, transitions
+============================================================ */
+
+/* ── Glitch — Main text split effect ─────────────────────── */
+@keyframes glitch-clip-1 {
+  0%, 100% { clip-path: inset(0 0 95% 0); transform: translate(-3px, 0); }
+  20%       { clip-path: inset(20% 0 60% 0); transform: translate(3px, 0); }
+  40%       { clip-path: inset(50% 0 30% 0); transform: translate(-2px, 0); }
+  60%       { clip-path: inset(80% 0 5% 0);  transform: translate(2px, 0); }
+  80%       { clip-path: inset(10% 0 80% 0); transform: translate(-3px, 0); }
+}
+
+@keyframes glitch-clip-2 {
+  0%, 100% { clip-path: inset(80% 0 5% 0);  transform: translate(3px, 0); }
+  20%       { clip-path: inset(5% 0 85% 0);  transform: translate(-3px, 0); }
+  40%       { clip-path: inset(30% 0 50% 0); transform: translate(2px, 0); }
+  60%       { clip-path: inset(60% 0 25% 0); transform: translate(-2px, 0); }
+  80%       { clip-path: inset(45% 0 40% 0); transform: translate(3px, 0); }
+}
+
+@keyframes glitch-skew {
+  0%, 100% { transform: skewX(0deg); }
+  5%        { transform: skewX(-4deg); }
+  10%       { transform: skewX(4deg); }
+  15%       { transform: skewX(0deg); }
+  50%       { transform: skewX(0deg); }
+  55%       { transform: skewX(-2deg); }
+  60%       { transform: skewX(2deg); }
+  65%       { transform: skewX(0deg); }
+}
+
+@keyframes glitch-color {
+  0%, 100% { color: var(--cd-white); text-shadow: none; }
+  10%       { color: var(--cd-neon-red); text-shadow: -2px 0 var(--cd-blood-red); }
+  20%       { color: var(--cd-white); text-shadow: 2px 0 #00ffff; }
+  30%       { color: var(--cd-white); text-shadow: none; }
+  70%       { color: var(--cd-neon-red); text-shadow: 2px 0 var(--cd-blood-red); }
+  80%       { color: var(--cd-white); text-shadow: none; }
+}
+
+/* ── Glitch — scanline pass ───────────────────────────────── */
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ── Flicker — neon sign effect ───────────────────────────── */
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+  20%, 24%, 55%                           { opacity: 0.4; }
+}
+
+@keyframes flicker-fast {
+  0%, 95%, 100%  { opacity: 1; }
+  96%, 98%       { opacity: 0.2; }
+  97%, 99%       { opacity: 0.8; }
+}
+
+/* ── Ink bleed — product card reveal ─────────────────────── */
+@keyframes ink-bleed-in {
+  0%   {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    opacity: 0;
+  }
+  40%  {
+    clip-path: polygon(0 0, 60% 0, 55% 100%, 0 100%);
+    opacity: 0.8;
+  }
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    opacity: 1;
+  }
+}
+
+@keyframes ink-bleed-out {
+  0%   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+  100% { clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); opacity: 0; }
+}
+
+/* ── Marquee — announcement bar ──────────────────────────── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Fade in variants ────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Scale in ────────────────────────────────────────────── */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scale-in-spring {
+  0%   { opacity: 0; transform: scale(0.8); }
+  70%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Slide in panel (cart drawer) ────────────────────────── */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes slide-out-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Pulse — badge, CTA attention ───────────────────────── */
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 26, 26, 0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(255, 26, 26, 0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(255, 26, 26, 0.6); }
+  50%       { text-shadow: 0 0 20px rgba(255, 26, 26, 1), 0 0 40px rgba(255, 26, 26, 0.4); }
+}
+
+/* ── Red line draw ───────────────────────────────────────── */
+@keyframes line-draw {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+/* ── Spin ────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Float ───────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── Shake ───────────────────────────────────────────────── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* ── Stagger animation helper classes ───────────────────── */
+.animate-fade-up   { animation: fade-in-up  0.5s var(--ease-med) both; }
+.animate-fade-in   { animation: fade-in     0.4s var(--ease-med) both; }
+.animate-scale-in  { animation: scale-in    0.35s var(--ease-med) both; }
+
+.animate-delay-1   { animation-delay: 0.1s; }
+.animate-delay-2   { animation-delay: 0.2s; }
+.animate-delay-3   { animation-delay: 0.3s; }
+.animate-delay-4   { animation-delay: 0.4s; }
+.animate-delay-5   { animation-delay: 0.5s; }
+
+/* ── Glitch text component ───────────────────────────────── */
+.glitch-text {
+  position: relative;
+  display:  inline-block;
+  animation: glitch-skew 4s infinite linear alternate-reverse;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content:  attr(data-text);
+  position: absolute;
+  inset:    0;
+  color:    var(--cd-white);
+}
+
+.glitch-text::before {
+  color:     var(--cd-neon-red);
+  animation: glitch-clip-1 3s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  color:     #00ffff;
+  animation: glitch-clip-2 3.5s infinite linear alternate-reverse;
+}
+
+/* ── Flicker text ────────────────────────────────────────── */
+.flicker-text {
+  animation: flicker 4s infinite;
+}
+
+/* ── Ink reveal on hover ─────────────────────────────────── */
+.ink-reveal {
+  position: relative;
+  overflow: hidden;
+}
+
+.ink-reveal::after {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 26, 26, 0.08) 0%,
+    transparent 60%
+  );
+  clip-path:  polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ink-reveal:hover::after {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ── Scanline overlay ────────────────────────────────────── */
+.scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::before {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Reduced motion overrides ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .glitch-text,
+  .glitch-text::before,
+  .glitch-text::after { animation: none; }
+  .glitch-text::before,
+  .glitch-text::after { display: none; }
+
+  .flicker-text   { animation: none; }
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-scale-in { animation: none; opacity: 1; }
+}
