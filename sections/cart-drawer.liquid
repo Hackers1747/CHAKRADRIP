@@ -1,0 +1,324 @@
+{% comment %}
+  CHAKRADRIP — cart-drawer.liquid (snippet rendered in theme.liquid)
+  Slide-out cart drawer — custom element handled by cart-drawer.js
+{% endcomment %}
+
+<cart-drawer aria-hidden="true">
+  <div class="cart-panel" data-cart-panel role="dialog" aria-modal="true" aria-label="Shopping cart">
+
+    <!-- Header -->
+    <div class="cart-panel__header">
+      <h2 class="cart-panel__title">
+        Your Drip
+        <span class="cart-panel__count" data-cart-count>{{ cart.item_count }}</span>
+      </h2>
+      <button class="nav-icon-btn" data-cart-close aria-label="Close cart">
+        {%- render 'icon-close' -%}
+      </button>
+    </div>
+
+    <!-- Empty state -->
+    <div class="cart-panel__empty {% unless cart.item_count == 0 %}is-hidden{% endunless %}" data-cart-empty>
+      <p class="cart-panel__empty-icon">◈</p>
+      <p class="cart-panel__empty-title">Your cart is empty</p>
+      <p class="cart-panel__empty-text">The drip is real — add something.</p>
+      <a href="{{ routes.collections_url }}/all" class="btn btn--outline" onclick="document.querySelector('cart-drawer').querySelector('[data-cart-close]').click()">
+        Shop Now
+      </a>
+    </div>
+
+    <!-- Filled state -->
+    <div class="cart-panel__filled {% if cart.item_count == 0 %}is-hidden{% endif %}" data-cart-filled>
+
+      <!-- Items -->
+      <div class="cart-panel__items" data-cart-items>
+        {%- for item in cart.items -%}
+          <div class="cart-item" data-key="{{ item.key }}">
+            <a href="{{ item.url }}" class="cart-item__image">
+              <img
+                src="{{ item.image | image_url: width: 160 }}"
+                alt="{{ item.product.title }}"
+                loading="lazy"
+                width="80"
+                height="96"
+              >
+            </a>
+            <div class="cart-item__body">
+              <a href="{{ item.url }}" class="cart-item__title">{{ item.product.title }}</a>
+              {%- unless item.variant.title == 'Default Title' -%}
+                <p class="cart-item__variant">{{ item.variant.title }}</p>
+              {%- endunless -%}
+              <div class="cart-item__footer">
+                <div class="quantity-selector" style="--qs-size:36px;">
+                  <button class="quantity-selector__btn" data-qty-change="-1" aria-label="Decrease quantity">−</button>
+                  <input class="quantity-selector__input" type="number" value="{{ item.quantity }}" min="0" data-qty-input>
+                  <button class="quantity-selector__btn" data-qty-change="1"  aria-label="Increase quantity">+</button>
+                </div>
+                <span class="cart-item__price">{{ item.final_line_price | money }}</span>
+                <button class="cart-item__remove" data-remove aria-label="Remove {{ item.product.title }}">✕</button>
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <!-- Footer -->
+      <div class="cart-panel__footer">
+        <div class="cart-panel__subtotal">
+          <span class="cart-panel__subtotal-label">Subtotal</span>
+          <span class="cart-panel__subtotal-price" data-cart-subtotal>{{ cart.total_price | money }}</span>
+        </div>
+        <p class="cart-panel__shipping-note">Shipping & taxes calculated at checkout</p>
+        <a href="{{ routes.cart_url }}" class="btn btn--ghost" style="width:100%;margin-bottom:var(--space-2);">View Cart</a>
+        <a href="/checkout" class="btn btn--primary btn--lg" style="width:100%;" data-checkout-btn>
+          Checkout
+        </a>
+      </div>
+
+    </div>
+  </div>
+</cart-drawer>
+
+<style>
+  cart-drawer {
+    display: block;
+  }
+
+  /* ── Panel ───────────────────────────────────────────── */
+  .cart-panel {
+    position:       fixed;
+    top:            0;
+    right:          0;
+    width:          min(440px, 100vw);
+    height:         100vh;
+    background:     var(--cd-surface-1);
+    border-left:    1px solid var(--cd-surface-3);
+    border-left-color: var(--cd-blood-red);
+    z-index:        calc(var(--z-overlay) + 1);
+    display:        flex;
+    flex-direction: column;
+    transform:      translateX(100%);
+    transition:     transform var(--ease-slow);
+    box-shadow:     -8px 0 48px rgba(0,0,0,0.6);
+  }
+
+  .cart-panel.is-open { transform: translateX(0); }
+
+  /* ── Header ──────────────────────────────────────────── */
+  .cart-panel__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         var(--space-6);
+    border-bottom:   1px solid var(--cd-surface-3);
+    flex-shrink:     0;
+    height:          var(--nav-height);
+  }
+
+  .cart-panel__title {
+    font-family:    var(--font-display);
+    font-size:      var(--text-2xl);
+    color:          var(--cd-white);
+    display:        flex;
+    align-items:    center;
+    gap:            var(--space-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cart-panel__count {
+    background:    var(--cd-neon-red);
+    color:         var(--cd-black);
+    font-family:   var(--font-mono);
+    font-size:     var(--text-sm);
+    font-weight:   700;
+    border-radius: 50%;
+    width:         24px;
+    height:        24px;
+    display:       inline-flex;
+    align-items:   center;
+    justify-content: center;
+  }
+
+  /* ── Empty ───────────────────────────────────────────── */
+  .cart-panel__empty {
+    flex:            1;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    text-align:      center;
+    padding:         var(--space-8);
+    gap:             var(--space-4);
+  }
+
+  .cart-panel__empty.is-hidden { display: none; }
+
+  .cart-panel__empty-icon {
+    font-size:  var(--text-4xl);
+    color:      var(--cd-surface-3);
+    margin:     0;
+    line-height: 1;
+  }
+
+  .cart-panel__empty-title {
+    font-family: var(--font-display);
+    font-size:   var(--text-2xl);
+    color:       var(--cd-text-muted);
+    margin:      0;
+  }
+
+  .cart-panel__empty-text {
+    color:  var(--cd-text-muted);
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  /* ── Filled ──────────────────────────────────────────── */
+  .cart-panel__filled {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    overflow:       hidden;
+  }
+
+  .cart-panel__filled.is-hidden { display: none; }
+
+  /* ── Items ───────────────────────────────────────────── */
+  .cart-panel__items {
+    flex:       1;
+    overflow-y: auto;
+    padding:    var(--space-4) var(--space-6);
+    display:    flex;
+    flex-direction: column;
+    gap:        var(--space-4);
+    scrollbar-width: thin;
+    scrollbar-color: var(--cd-surface-3) transparent;
+  }
+
+  /* ── Cart item ───────────────────────────────────────── */
+  .cart-item {
+    display: flex;
+    gap:     var(--space-4);
+  }
+
+  .cart-item__image {
+    flex-shrink: 0;
+    width:       80px;
+    aspect-ratio: 5 / 6;
+    overflow:    hidden;
+    border-radius: var(--radius-sharp);
+    border:      1px solid var(--cd-surface-3);
+    display:     block;
+  }
+
+  .cart-item__image img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    transition: transform var(--ease-med);
+  }
+
+  .cart-item__image:hover img { transform: scale(1.06); }
+
+  .cart-item__body {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-1);
+    min-width:      0;
+  }
+
+  .cart-item__title {
+    font-family:    var(--font-display);
+    font-size:      var(--text-lg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color:          var(--cd-white);
+    white-space:    nowrap;
+    overflow:       hidden;
+    text-overflow:  ellipsis;
+  }
+
+  .cart-item__title:hover { color: var(--cd-neon-red); }
+
+  .cart-item__variant {
+    font-family: var(--font-mono);
+    font-size:   var(--text-xs);
+    color:       var(--cd-text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin:      0;
+  }
+
+  .cart-item__footer {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-3);
+    margin-top:  auto;
+    flex-wrap:   wrap;
+  }
+
+  .cart-item__price {
+    font-family: var(--font-mono);
+    font-size:   var(--text-base);
+    color:       var(--cd-neon-red);
+    margin-left: auto;
+  }
+
+  .cart-item__remove {
+    background:  none;
+    border:      none;
+    color:       var(--cd-text-muted);
+    font-size:   var(--text-xs);
+    cursor:      pointer;
+    padding:     var(--space-1);
+    transition:  color var(--ease-fast);
+    line-height: 1;
+  }
+
+  .cart-item__remove:hover { color: var(--cd-neon-red); }
+
+  /* ── Footer ──────────────────────────────────────────── */
+  .cart-panel__footer {
+    padding:     var(--space-6);
+    border-top:  1px solid var(--cd-surface-3);
+    flex-shrink: 0;
+    background:  var(--cd-surface-1);
+  }
+
+  .cart-panel__subtotal {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     baseline;
+    margin-bottom:   var(--space-2);
+  }
+
+  .cart-panel__subtotal-label {
+    font-family:    var(--font-display);
+    font-size:      var(--text-lg);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+  }
+
+  .cart-panel__subtotal-price {
+    font-family: var(--font-mono);
+    font-size:   var(--text-2xl);
+    color:       var(--cd-neon-red);
+    font-weight: 600;
+  }
+
+  .cart-panel__shipping-note {
+    font-family:   var(--font-mono);
+    font-size:     var(--text-xs);
+    color:         var(--cd-text-muted);
+    text-align:    center;
+    margin-bottom: var(--space-4);
+    letter-spacing: 0.08em;
+  }
+
+  /* Quantity selector size override for cart -->
+  .cart-item .quantity-selector__btn  { width: 32px; height: 32px; font-size: var(--text-base); }
+  .cart-item .quantity-selector__input { width: 40px; height: 32px; font-size: var(--text-sm); }
+</style>
