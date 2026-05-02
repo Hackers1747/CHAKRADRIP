@@ -1,0 +1,610 @@
+{% comment %}
+  CHAKRADRIP â€” header.liquid
+  Sticky dark nav with mobile menu + cart drawer trigger
+{% endcomment %}
+
+<header class="site-nav" id="site-nav" role="banner">
+  <div class="site-nav__inner container--wide">
+
+    <!-- Mobile: hamburger -->
+    <button
+      class="site-nav__menu-btn js-only"
+      id="nav-menu-btn"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
+      aria-label="Open menu"
+    >
+      {%- render 'icon-menu' -%}
+    </button>
+
+    <!-- Logo -->
+    <a href="{{ routes.root_url }}" class="site-nav__logo" aria-label="{{ shop.name }} home">
+      {%- if section.settings.logo != blank -%}
+        <img
+          src="{{ section.settings.logo | image_url: width: 200 }}"
+          alt="{{ shop.name }}"
+          width="140"
+          height="40"
+          loading="eager"
+        >
+      {%- else -%}
+        <span class="site-nav__logo-text" data-glitch>{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    <!-- Desktop nav links -->
+    {%- if section.settings.menu != blank -%}
+      <nav class="site-nav__links hide-mobile" aria-label="Main navigation">
+        {%- for link in section.settings.menu.links -%}
+          {%- if link.links != blank -%}
+            <div class="nav-dropdown">
+              <button
+                class="nav-link nav-link--dropdown"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls="dropdown-{{ forloop.index }}"
+                id="dropdown-btn-{{ forloop.index }}"
+              >
+                {{ link.title }}
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <ul
+                class="nav-dropdown__menu"
+                role="list"
+                id="dropdown-{{ forloop.index }}"
+                aria-labelledby="dropdown-btn-{{ forloop.index }}"
+              >
+                {%- for child in link.links -%}
+                  <li>
+                    <a href="{{ child.url }}" class="nav-dropdown__item"
+                      {% if child.url == request.path %}aria-current="page"{% endif %}>
+                      {{ child.title }}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- else -%}
+            <a
+              href="{{ link.url }}"
+              class="nav-link{% if link.url == request.path %} is-active{% endif %}"
+              {% if link.url == request.path %}aria-current="page"{% endif %}
+            >
+              {{ link.title }}
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    <!-- Actions: search + cart -->
+    <div class="site-nav__actions">
+      <a href="{{ routes.search_url }}" class="nav-icon-btn" aria-label="Search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </a>
+
+      <button class="nav-icon-btn nav-cart-btn" data-cart-open aria-label="Open cart">
+        {%- render 'icon-cart' -%}
+        <span class="nav-cart-count is-hidden" data-cart-count aria-live="polite" aria-atomic="true">0</span>
+      </button>
+    </div>
+
+  </div><!-- /inner -->
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay" aria-hidden="true"></div>
+
+<!-- Mobile Menu Drawer -->
+<div
+  class="mobile-menu"
+  id="mobile-menu"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation menu"
+>
+  <div class="mobile-menu__header">
+    <a href="{{ routes.root_url }}" class="site-nav__logo-text">{{ shop.name }}</a>
+    <button class="nav-icon-btn" id="nav-close-btn" aria-label="Close menu">
+      {%- render 'icon-close' -%}
+    </button>
+  </div>
+
+  {%- if section.settings.menu != blank -%}
+    <nav aria-label="Mobile navigation">
+      <ul class="mobile-menu__links" role="list">
+        {%- for link in section.settings.menu.links -%}
+          <li class="mobile-menu__item">
+            <a
+              href="{{ link.url }}"
+              class="mobile-menu__link{% if link.url == request.path %} is-active{% endif %}"
+            >
+              {{ link.title }}
+            </a>
+            {%- if link.links != blank -%}
+              <ul class="mobile-menu__sub" role="list">
+                {%- for child in link.links -%}
+                  <li>
+                    <a href="{{ child.url }}" class="mobile-menu__sub-link">{{ child.title }}</a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  {%- endif -%}
+
+  {%- if section.settings.show_social -%}
+    <div class="mobile-menu__footer">
+      {%- if settings.social_instagram_link != blank -%}
+        <a href="{{ settings.social_instagram_link }}" class="mobile-menu__social" aria-label="Instagram" target="_blank" rel="noopener">
+          Instagram
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+  /* â”€â”€ Nav shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .site-nav {
+    position:   fixed;
+    top:        0;
+    left:       0;
+    right:      0;
+    height:     var(--nav-height);
+    z-index:    var(--z-sticky);
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--cd-surface-3);
+    transition: transform var(--ease-med), background var(--ease-med),
+                border-color var(--ease-med), height var(--ease-med);
+  }
+
+  .site-nav.is-hidden   { transform: translateY(-100%); }
+
+  .site-nav.is-scrolled {
+    background:   rgba(10, 10, 10, 0.97);
+    border-color: var(--cd-blood-red);
+    box-shadow:   0 2px 20px rgba(0,0,0,0.5);
+  }
+
+  .site-nav__inner {
+    height:      100%;
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-8);
+  }
+
+  /* â”€â”€ Logo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .site-nav__logo { display: flex; align-items: center; text-decoration: none; }
+  .site-nav__logo img { max-height: 40px; width: auto; }
+
+  .site-nav__logo-text {
+    font-family:    var(--font-display);
+    font-size:      var(--text-2xl);
+    letter-spacing: 0.08em;
+    color:          var(--cd-white);
+    text-decoration: none;
+    transition:     color var(--ease-fast);
+  }
+
+  .site-nav__logo-text:hover,
+  .site-nav__logo a:hover .site-nav__logo-text { color: var(--cd-neon-red); }
+
+  /* â”€â”€ Desktop links â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .site-nav__links {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-2);
+    flex:        1;
+    justify-content: center;
+  }
+
+  .nav-link {
+    font-family:    var(--font-display);
+    font-size:      var(--text-lg);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+    padding:        var(--space-2) var(--space-3);
+    position:       relative;
+    transition:     color var(--ease-fast);
+    text-decoration: none;
+    display:        flex;
+    align-items:    center;
+    gap:            var(--space-1);
+    border:         none;
+    background:     none;
+    cursor:         pointer;
+  }
+
+  .nav-link::after {
+    content:    '';
+    position:   absolute;
+    bottom:     -2px;
+    left:       50%;
+    right:      50%;
+    height:     2px;
+    background: var(--cd-neon-red);
+    transition: left var(--ease-med), right var(--ease-med);
+    box-shadow: var(--cd-glow-red);
+  }
+
+  .nav-link:hover,
+  .nav-link.is-active { color: var(--cd-white); }
+
+  .nav-link:hover::after,
+  .nav-link.is-active::after { left: 0; right: 0; }
+
+  /* â”€â”€ Dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .nav-dropdown { position: relative; }
+
+  .nav-dropdown__menu {
+    position:   absolute;
+    top:        calc(100% + 8px);
+    left:       50%;
+    transform:  translateX(-50%) translateY(8px);
+    min-width:  180px;
+    background: var(--cd-surface-2);
+    border:     1px solid var(--cd-surface-3);
+    border-top: 2px solid var(--cd-neon-red);
+    border-radius: var(--radius-sm);
+    list-style: none;
+    padding:    var(--space-2) 0;
+    opacity:    0;
+    visibility: hidden;
+    transition: opacity var(--ease-fast), transform var(--ease-fast), visibility var(--ease-fast);
+    z-index:    var(--z-dropdown);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+  }
+
+  .nav-dropdown:hover .nav-dropdown__menu,
+  .nav-dropdown:focus-within .nav-dropdown__menu {
+    opacity:    1;
+    visibility: visible;
+    transform:  translateX(-50%) translateY(0);
+  }
+
+  .nav-dropdown__item {
+    display:        block;
+    padding:        var(--space-2) var(--space-4);
+    font-family:    var(--font-display);
+    font-size:      var(--text-base);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+    transition:     color var(--ease-fast), background var(--ease-fast);
+    text-decoration: none;
+  }
+
+  .nav-dropdown__item:hover {
+    color:      var(--cd-neon-red);
+    background: rgba(255,26,26,0.06);
+  }
+
+  /* â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .site-nav__actions {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-2);
+    margin-left: auto;
+  }
+
+  .nav-icon-btn {
+    position:        relative;
+    width:           40px;
+    height:          40px;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    color:           var(--cd-text-muted);
+    background:      none;
+    border:          none;
+    border-radius:   var(--radius-sm);
+    transition:      color var(--ease-fast), background var(--ease-fast);
+    cursor:          pointer;
+  }
+
+  .nav-icon-btn:hover {
+    color:      var(--cd-neon-red);
+    background: rgba(255,26,26,0.08);
+  }
+
+  .nav-cart-count {
+    position:    absolute;
+    top:         4px;
+    right:       4px;
+    width:       18px;
+    height:      18px;
+    background:  var(--cd-neon-red);
+    color:       var(--cd-black);
+    font-family: var(--font-mono);
+    font-size:   10px;
+    font-weight: 700;
+    border-radius: 50%;
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition:  transform var(--ease-spring);
+  }
+
+  .nav-cart-count.pop { animation: scale-in-spring 0.4s var(--ease-spring); }
+  .nav-cart-count.is-hidden { display: none; }
+
+  /* â”€â”€ Mobile menu btn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .site-nav__menu-btn {
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    width:       40px;
+    height:      40px;
+    color:       var(--cd-text-muted);
+    background:  none;
+    border:      none;
+    cursor:      pointer;
+    transition:  color var(--ease-fast);
+    order:       -1;
+  }
+
+  .site-nav__menu-btn:hover { color: var(--cd-neon-red); }
+
+  /* â”€â”€ Mobile menu overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .mobile-menu-overlay {
+    position:   fixed;
+    inset:      0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index:    var(--z-overlay);
+    opacity:    0;
+    visibility: hidden;
+    transition: opacity var(--ease-slow), visibility var(--ease-slow);
+  }
+
+  .mobile-menu-overlay.is-open {
+    opacity:    1;
+    visibility: visible;
+  }
+
+  /* â”€â”€ Mobile menu panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .mobile-menu {
+    position:   fixed;
+    top:        0;
+    left:       0;
+    width:      min(340px, 90vw);
+    height:     100vh;
+    background: var(--cd-surface-1);
+    border-right: 1px solid var(--cd-blood-red);
+    z-index:    calc(var(--z-overlay) + 1);
+    transform:  translateX(-100%);
+    transition: transform var(--ease-slow);
+    display:    flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mobile-menu.is-open { transform: translateX(0); }
+
+  .mobile-menu__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         var(--space-4) var(--space-6);
+    border-bottom:   1px solid var(--cd-surface-3);
+    height:          var(--nav-height);
+    flex-shrink:     0;
+  }
+
+  .mobile-menu__links {
+    list-style: none;
+    padding:    var(--space-4) 0;
+    flex:       1;
+  }
+
+  .mobile-menu__item { border-bottom: 1px solid var(--cd-surface-3); }
+
+  .mobile-menu__link {
+    display:        block;
+    padding:        var(--space-4) var(--space-6);
+    font-family:    var(--font-display);
+    font-size:      var(--text-2xl);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color:          var(--cd-text);
+    text-decoration: none;
+    transition:     color var(--ease-fast), padding-left var(--ease-fast);
+  }
+
+  .mobile-menu__link:hover,
+  .mobile-menu__link.is-active {
+    color:        var(--cd-neon-red);
+    padding-left: var(--space-8);
+  }
+
+  .mobile-menu__sub {
+    list-style: none;
+    padding:    0 0 var(--space-2) var(--space-8);
+  }
+
+  .mobile-menu__sub-link {
+    display:        block;
+    padding:        var(--space-2) var(--space-4);
+    font-family:    var(--font-display);
+    font-size:      var(--text-lg);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+    text-decoration: none;
+  }
+
+  .mobile-menu__sub-link:hover { color: var(--cd-neon-red); }
+
+  .mobile-menu__footer {
+    padding:     var(--space-6);
+    border-top:  1px solid var(--cd-surface-3);
+    display:     flex;
+    gap:         var(--space-4);
+    flex-shrink: 0;
+  }
+
+  .mobile-menu__social {
+    font-family:    var(--font-display);
+    font-size:      var(--text-base);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+  }
+
+  .mobile-menu__social:hover { color: var(--cd-neon-red); }
+</style>
+
+<script>
+  (() => {
+    const nav        = document.getElementById('site-nav');
+    const menuBtn    = document.getElementById('nav-menu-btn');
+    const closeBtn   = document.getElementById('nav-close-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const overlay    = document.getElementById('mobile-menu-overlay');
+    const cartCount  = document.querySelector('[data-cart-count]');
+
+    /* â”€â”€ Hide-on-scroll â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    let lastY = 0;
+    const SCROLL_THRESHOLD = 80;
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      nav.classList.toggle('is-scrolled', y > 10);
+      if (y < SCROLL_THRESHOLD) {
+        nav.classList.remove('is-hidden');
+      } else {
+        nav.classList.toggle('is-hidden', y > lastY);
+      }
+      lastY = y;
+    }, { passive: true });
+
+    /* â”€â”€ Mobile menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function openMenu() {
+      mobileMenu.classList.add('is-open');
+      overlay.classList.add('is-open');
+      mobileMenu.setAttribute('aria-hidden', 'false');
+      overlay.setAttribute('aria-hidden', 'false');
+      menuBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      // Move focus to close button
+      closeBtn.focus();
+    }
+
+    function closeMenu() {
+      mobileMenu.classList.remove('is-open');
+      overlay.classList.remove('is-open');
+      mobileMenu.setAttribute('aria-hidden', 'true');
+      overlay.setAttribute('aria-hidden', 'true');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      menuBtn.focus();
+    }
+
+    menuBtn?.addEventListener('click', openMenu);
+    closeBtn?.addEventListener('click', closeMenu);
+    overlay?.addEventListener('click', closeMenu);
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('is-open')) {
+        closeMenu();
+      }
+    });
+
+    // Basic focus trap inside mobile menu
+    mobileMenu?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusable = [...mobileMenu.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    });
+
+    /* â”€â”€ Cart count â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function updateCartCount() {
+      fetch('/cart.js')
+        .then(r => r.json())
+        .then(cart => {
+          if (!cartCount) return;
+          const count = cart.item_count;
+          cartCount.textContent = count;
+          if (count > 0) {
+            if (cartCount.classList.contains('is-hidden')) {
+              cartCount.classList.remove('is-hidden');
+              cartCount.classList.add('pop');
+              cartCount.addEventListener('animationend', () =>
+                cartCount.classList.remove('pop'), { once: true }
+              );
+            }
+          } else {
+            cartCount.classList.add('is-hidden');
+          }
+        })
+        .catch(() => {}); // Fail silently â€” cart icon still works
+    }
+
+    updateCartCount();
+
+    // Re-fetch cart count whenever cart drawer signals an update
+    document.addEventListener('cart:updated', updateCartCount);
+
+    /* â”€â”€ Dropdown keyboard support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    document.querySelectorAll('.nav-dropdown__menu').forEach(menu => {
+      menu.closest('.nav-dropdown')
+          ?.querySelector('.nav-link--dropdown')
+          ?.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              e.currentTarget.focus();
+            }
+          });
+    });
+
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Navigation menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "label": "Show social links in mobile menu",
+      "default": true
+    }
+  ],
+  "presets": [
+    { "name": "Header" }
+  ]
+}
+{% endschema %}
