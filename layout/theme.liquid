@@ -1,22 +1,24 @@
 <!doctype html>
-<html
-  lang="{{ request.locale.iso_code }}"
-  class="no-js"
-  data-color-scheme="dark"
->
+<html class="js" lang="{{ request.locale.iso_code }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
 
-    <!-- ============================================================
-         TITLE & META
-    ============================================================ -->
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
     <title>
       {{ page_title }}
-      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
-      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
       {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
@@ -24,508 +26,322 @@
       <meta name="description" content="{{ page_description | escape }}">
     {% endif %}
 
-    <!-- ============================================================
-         CANONICAL & HREFLANG
-    ============================================================ -->
-    <link rel="canonical" href="{{ canonical_url }}">
+    {% render 'meta-tags' %}
 
-    {%- if settings.favicon != blank %}
-      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
-    {%- endif %}
+    <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
 
-    <!-- ============================================================
-         PRECONNECTS â€” performance
-    ============================================================ -->
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {%- if settings.animations_reveal_on_scroll -%}
+      <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
 
-    <!-- ============================================================
-         TYPOGRAPHY â€” Bebas Neue (display) + Rajdhani (body)
-         Rajdhani is angular, technical, and pairs perfectly with
-         the dark-energy CHAKRADRIP aesthetic
-    ============================================================ -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
-      rel="stylesheet"
-    >
-
-    <!-- ============================================================
-         SHOPIFY REQUIRED â€” scripts, tracking, app injections
-    ============================================================ -->
     {{ content_for_header }}
 
-    <!-- ============================================================
-         DESIGN TOKENS â€” single source of truth
-    ============================================================ -->
-    <style>
-      :root {
-        /* â”€â”€ Palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --cd-black:        #0a0a0a;
-        --cd-surface-1:    #0f0f0f;   /* card backgrounds    */
-        --cd-surface-2:    #141414;   /* elevated surfaces   */
-        --cd-surface-3:    #1c1c1c;   /* borders, dividers   */
-        --cd-neon-red:     #ff1a1a;   /* primary accent      */
-        --cd-blood-red:    #8b0000;   /* deep accent         */
-        --cd-crimson:      #c0392b;   /* mid-tone accent     */
-        --cd-text:         #e8e8e8;   /* primary text        */
-        --cd-text-muted:   #666666;   /* secondary text      */
-        --cd-text-ghost:   #333333;   /* decorative text     */
-        --cd-white:        #ffffff;
+    {%- liquid
+      assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+      assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
+      assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+    %}
 
-        /* â”€â”€ Glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --cd-glow-red:     0 0 8px rgba(255, 26, 26, 0.6),
-                           0 0 24px rgba(255, 26, 26, 0.25);
-        --cd-glow-blood:   0 0 12px rgba(139, 0, 0, 0.5);
+    {% style %}
+      {{ settings.type_body_font | font_face: font_display: 'swap' }}
+      {{ body_font_bold | font_face: font_display: 'swap' }}
+      {{ body_font_italic | font_face: font_display: 'swap' }}
+      {{ body_font_bold_italic | font_face: font_display: 'swap' }}
+      {{ settings.type_header_font | font_face: font_display: 'swap' }}
 
-        /* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --font-display:    'Bebas Neue', 'Impact', sans-serif;
-        --font-body:       'Rajdhani', 'Arial Narrow', sans-serif;
-        --font-mono:       'Share Tech Mono', 'Courier New', monospace;
+      {% for scheme in settings.color_schemes -%}
+        {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+        {% if forloop.index == 1 -%}
+          :root,
+        {%- endif %}
+        .color-{{ scheme.id }} {
+          --color-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        {% if scheme.settings.background_gradient != empty %}
+          --gradient-background: {{ scheme.settings.background_gradient }};
+        {% else %}
+          --gradient-background: {{ scheme.settings.background }};
+        {% endif %}
 
-        /* â”€â”€ Scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --text-xs:   0.75rem;   /*  12px */
-        --text-sm:   0.875rem;  /*  14px */
-        --text-base: 1rem;      /*  16px */
-        --text-md:   1.125rem;  /*  18px */
-        --text-lg:   1.25rem;   /*  20px */
-        --text-xl:   1.5rem;    /*  24px */
-        --text-2xl:  2rem;      /*  32px */
-        --text-3xl:  3rem;      /*  48px */
-        --text-4xl:  4.5rem;    /*  72px */
-        --text-5xl:  7rem;      /* 112px */
+        {% liquid
+          assign background_color = scheme.settings.background
+          assign background_color_brightness = background_color | color_brightness
+          if background_color_brightness <= 26
+            assign background_color_contrast = background_color | color_lighten: 50
+          elsif background_color_brightness <= 65
+            assign background_color_contrast = background_color | color_lighten: 5
+          else
+            assign background_color_contrast = background_color | color_darken: 25
+          endif
+        %}
 
-        /* â”€â”€ Spacing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --space-1:   4px;
-        --space-2:   8px;
-        --space-3:   12px;
-        --space-4:   16px;
-        --space-6:   24px;
-        --space-8:   32px;
-        --space-12:  48px;
-        --space-16:  64px;
-        --space-24:  96px;
-        --space-32:  128px;
-
-        /* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --max-width:     1440px;
-        --content-width: 1200px;
-        --nav-height:    64px;
-        --page-padding:  clamp(16px, 4vw, 48px);
-
-        /* â”€â”€ Radius â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --radius-sharp: 1px;
-        --radius-sm:    4px;
-        --radius-md:    6px;
-
-        /* â”€â”€ Transitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --ease-fast:   0.12s cubic-bezier(0.4, 0, 0.2, 1);
-        --ease-med:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        --ease-slow:   0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        --ease-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-        /* â”€â”€ Z-index stack â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-        --z-base:       1;
-        --z-raised:     10;
-        --z-dropdown:   100;
-        --z-sticky:     200;
-        --z-overlay:    300;
-        --z-modal:      400;
-        --z-toast:      500;
+        --color-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-background-contrast: {{ background_color_contrast.red }},{{ background_color_contrast.green }},{{ background_color_contrast.blue }};
+        --color-shadow: {{ scheme.settings.shadow.red }},{{ scheme.settings.shadow.green }},{{ scheme.settings.shadow.blue }};
+        --color-button: {{ scheme.settings.button.red }},{{ scheme.settings.button.green }},{{ scheme.settings.button.blue }};
+        --color-button-text: {{ scheme.settings.button_label.red }},{{ scheme.settings.button_label.green }},{{ scheme.settings.button_label.blue }};
+        --color-secondary-button: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-secondary-button-text: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-link: {{ scheme.settings.secondary_button_label.red }},{{ scheme.settings.secondary_button_label.green }},{{ scheme.settings.secondary_button_label.blue }};
+        --color-badge-foreground: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --color-badge-background: {{ scheme.settings.background.red }},{{ scheme.settings.background.green }},{{ scheme.settings.background.blue }};
+        --color-badge-border: {{ scheme.settings.text.red }},{{ scheme.settings.text.green }},{{ scheme.settings.text.blue }};
+        --payment-terms-background-color: rgb({{ scheme.settings.background.rgb }});
       }
-    </style>
+      {% endfor %}
 
-    <!-- ============================================================
-         GLOBAL BASE STYLES
-    ============================================================ -->
-    <style>
-      /* â”€â”€ Reset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+      {{ scheme_classes | prepend: 'body' }} {
+        color: rgba(var(--color-foreground), 0.75);
+        background-color: rgb(var(--color-background));
+      }
+
+      :root {
+        --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+        --font-body-style: {{ settings.type_body_font.style }};
+        --font-body-weight: {{ settings.type_body_font.weight }};
+        --font-body-weight-bold: {{ settings.type_body_font.weight | plus: 300 | at_most: 1000 }};
+
+        --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+        --font-heading-style: {{ settings.type_header_font.style }};
+        --font-heading-weight: {{ settings.type_header_font.weight }};
+
+        --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+        --font-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+
+        --media-padding: {{ settings.media_padding }}px;
+        --media-border-opacity: {{ settings.media_border_opacity | divided_by: 100.0 }};
+        --media-border-width: {{ settings.media_border_thickness }}px;
+        --media-radius: {{ settings.media_radius }}px;
+        --media-shadow-opacity: {{ settings.media_shadow_opacity | divided_by: 100.0 }};
+        --media-shadow-horizontal-offset: {{ settings.media_shadow_horizontal_offset }}px;
+        --media-shadow-vertical-offset: {{ settings.media_shadow_vertical_offset }}px;
+        --media-shadow-blur-radius: {{ settings.media_shadow_blur }}px;
+        --media-shadow-visible: {% if settings.media_shadow_opacity > 0 %}1{% else %}0{% endif %};
+
+        --page-width: {{ settings.page_width | divided_by: 10 }}rem;
+        --page-width-margin: {% if settings.page_width == '1600' %}2{% else %}0{% endif %}rem;
+
+        --product-card-image-padding: {{ settings.card_image_padding | divided_by: 10.0 }}rem;
+        --product-card-corner-radius: {{ settings.card_corner_radius | divided_by: 10.0 }}rem;
+        --product-card-text-alignment: {{ settings.card_text_alignment }};
+        --product-card-border-width: {{ settings.card_border_thickness | divided_by: 10.0 }}rem;
+        --product-card-border-opacity: {{ settings.card_border_opacity | divided_by: 100.0 }};
+        --product-card-shadow-opacity: {{ settings.card_shadow_opacity | divided_by: 100.0 }};
+        --product-card-shadow-visible: {% if settings.card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --product-card-shadow-horizontal-offset: {{ settings.card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --product-card-shadow-vertical-offset: {{ settings.card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --product-card-shadow-blur-radius: {{ settings.card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --collection-card-image-padding: {{ settings.collection_card_image_padding | divided_by: 10.0 }}rem;
+        --collection-card-corner-radius: {{ settings.collection_card_corner_radius | divided_by: 10.0 }}rem;
+        --collection-card-text-alignment: {{ settings.collection_card_text_alignment }};
+        --collection-card-border-width: {{ settings.collection_card_border_thickness | divided_by: 10.0 }}rem;
+        --collection-card-border-opacity: {{ settings.collection_card_border_opacity | divided_by: 100.0 }};
+        --collection-card-shadow-opacity: {{ settings.collection_card_shadow_opacity | divided_by: 100.0 }};
+        --collection-card-shadow-visible: {% if settings.collection_card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --collection-card-shadow-horizontal-offset: {{ settings.collection_card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --collection-card-shadow-vertical-offset: {{ settings.collection_card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --collection-card-shadow-blur-radius: {{ settings.collection_card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --blog-card-image-padding: {{ settings.blog_card_image_padding | divided_by: 10.0 }}rem;
+        --blog-card-corner-radius: {{ settings.blog_card_corner_radius | divided_by: 10.0 }}rem;
+        --blog-card-text-alignment: {{ settings.blog_card_text_alignment }};
+        --blog-card-border-width: {{ settings.blog_card_border_thickness | divided_by: 10.0 }}rem;
+        --blog-card-border-opacity: {{ settings.blog_card_border_opacity | divided_by: 100.0 }};
+        --blog-card-shadow-opacity: {{ settings.blog_card_shadow_opacity | divided_by: 100.0 }};
+        --blog-card-shadow-visible: {% if settings.blog_card_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --blog-card-shadow-horizontal-offset: {{ settings.blog_card_shadow_horizontal_offset | divided_by: 10.0 }}rem;
+        --blog-card-shadow-vertical-offset: {{ settings.blog_card_shadow_vertical_offset | divided_by: 10.0 }}rem;
+        --blog-card-shadow-blur-radius: {{ settings.blog_card_shadow_blur | divided_by: 10.0 }}rem;
+
+        --badge-corner-radius: {{ settings.badge_corner_radius | divided_by: 10.0 }}rem;
+
+        --popup-border-width: {{ settings.popup_border_thickness }}px;
+        --popup-border-opacity: {{ settings.popup_border_opacity | divided_by: 100.0 }};
+        --popup-corner-radius: {{ settings.popup_corner_radius }}px;
+        --popup-shadow-opacity: {{ settings.popup_shadow_opacity | divided_by: 100.0 }};
+        --popup-shadow-horizontal-offset: {{ settings.popup_shadow_horizontal_offset }}px;
+        --popup-shadow-vertical-offset: {{ settings.popup_shadow_vertical_offset }}px;
+        --popup-shadow-blur-radius: {{ settings.popup_shadow_blur }}px;
+
+        --drawer-border-width: {{ settings.drawer_border_thickness }}px;
+        --drawer-border-opacity: {{ settings.drawer_border_opacity | divided_by: 100.0 }};
+        --drawer-shadow-opacity: {{ settings.drawer_shadow_opacity | divided_by: 100.0 }};
+        --drawer-shadow-horizontal-offset: {{ settings.drawer_shadow_horizontal_offset }}px;
+        --drawer-shadow-vertical-offset: {{ settings.drawer_shadow_vertical_offset }}px;
+        --drawer-shadow-blur-radius: {{ settings.drawer_shadow_blur }}px;
+
+        --spacing-sections-desktop: {{ settings.spacing_sections }}px;
+        --spacing-sections-mobile: {% if settings.spacing_sections < 24 %}{{ settings.spacing_sections }}{% else %}{{ settings.spacing_sections | times: 0.7 | round | at_least: 20 }}{% endif %}px;
+
+        --grid-desktop-vertical-spacing: {{ settings.spacing_grid_vertical }}px;
+        --grid-desktop-horizontal-spacing: {{ settings.spacing_grid_horizontal }}px;
+        --grid-mobile-vertical-spacing: {{ settings.spacing_grid_vertical | divided_by: 2 }}px;
+        --grid-mobile-horizontal-spacing: {{ settings.spacing_grid_horizontal | divided_by: 2 }}px;
+
+        --text-boxes-border-opacity: {{ settings.text_boxes_border_opacity | divided_by: 100.0 }};
+        --text-boxes-border-width: {{ settings.text_boxes_border_thickness }}px;
+        --text-boxes-radius: {{ settings.text_boxes_radius }}px;
+        --text-boxes-shadow-opacity: {{ settings.text_boxes_shadow_opacity | divided_by: 100.0 }};
+        --text-boxes-shadow-visible: {% if settings.text_boxes_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --text-boxes-shadow-horizontal-offset: {{ settings.text_boxes_shadow_horizontal_offset }}px;
+        --text-boxes-shadow-vertical-offset: {{ settings.text_boxes_shadow_vertical_offset }}px;
+        --text-boxes-shadow-blur-radius: {{ settings.text_boxes_shadow_blur }}px;
+
+        --buttons-radius: {{ settings.buttons_radius }}px;
+        --buttons-radius-outset: {% if settings.buttons_radius > 0 %}{{ settings.buttons_radius | plus: settings.buttons_border_thickness }}{% else %}0{% endif %}px;
+        --buttons-border-width: {% if settings.buttons_border_opacity > 0 %}{{ settings.buttons_border_thickness }}{% else %}0{% endif %}px;
+        --buttons-border-opacity: {{ settings.buttons_border_opacity | divided_by: 100.0 }};
+        --buttons-shadow-opacity: {{ settings.buttons_shadow_opacity | divided_by: 100.0 }};
+        --buttons-shadow-visible: {% if settings.buttons_shadow_opacity > 0 %}1{% else %}0{% endif %};
+        --buttons-shadow-horizontal-offset: {{ settings.buttons_shadow_horizontal_offset }}px;
+        --buttons-shadow-vertical-offset: {{ settings.buttons_shadow_vertical_offset }}px;
+        --buttons-shadow-blur-radius: {{ settings.buttons_shadow_blur }}px;
+        --buttons-border-offset: {% if settings.buttons_radius > 0 or settings.buttons_shadow_opacity > 0 %}0.3{% else %}0{% endif %}px;
+
+        --inputs-radius: {{ settings.inputs_radius }}px;
+        --inputs-border-width: {{ settings.inputs_border_thickness }}px;
+        --inputs-border-opacity: {{ settings.inputs_border_opacity | divided_by: 100.0 }};
+        --inputs-shadow-opacity: {{ settings.inputs_shadow_opacity | divided_by: 100.0 }};
+        --inputs-shadow-horizontal-offset: {{ settings.inputs_shadow_horizontal_offset }}px;
+        --inputs-margin-offset: {% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_opacity > 0 %}{{ settings.inputs_shadow_vertical_offset | abs }}{% else %}0{% endif %}px;
+        --inputs-shadow-vertical-offset: {{ settings.inputs_shadow_vertical_offset }}px;
+        --inputs-shadow-blur-radius: {{ settings.inputs_shadow_blur }}px;
+        --inputs-radius-outset: {% if settings.inputs_radius > 0 %}{{ settings.inputs_radius | plus: settings.inputs_border_thickness }}{% else %}0{% endif %}px;
+
+        --variant-pills-radius: {{ settings.variant_pills_radius }}px;
+        --variant-pills-border-width: {{ settings.variant_pills_border_thickness }}px;
+        --variant-pills-border-opacity: {{ settings.variant_pills_border_opacity | divided_by: 100.0 }};
+        --variant-pills-shadow-opacity: {{ settings.variant_pills_shadow_opacity | divided_by: 100.0 }};
+        --variant-pills-shadow-horizontal-offset: {{ settings.variant_pills_shadow_horizontal_offset }}px;
+        --variant-pills-shadow-vertical-offset: {{ settings.variant_pills_shadow_vertical_offset }}px;
+        --variant-pills-shadow-blur-radius: {{ settings.variant_pills_shadow_blur }}px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
       }
 
       html {
-        font-size: 16px;
-        scroll-behavior: smooth;
-        -webkit-text-size-adjust: 100%;
-        scrollbar-color: var(--cd-blood-red) var(--cd-surface-1);
-        scrollbar-width: thin;
-      }
-
-      html.no-js .js-only   { display: none !important; }
-      html.js    .no-js-only { display: none !important; }
-
-      ::-webkit-scrollbar              { width: 4px; }
-      ::-webkit-scrollbar-track        { background: var(--cd-surface-1); }
-      ::-webkit-scrollbar-thumb        { background: var(--cd-blood-red); border-radius: 2px; }
-      ::-webkit-scrollbar-thumb:hover  { background: var(--cd-neon-red); }
-
-      ::selection {
-        background: var(--cd-neon-red);
-        color: var(--cd-black);
+        box-sizing: border-box;
+        font-size: calc(var(--font-body-scale) * 62.5%);
+        height: 100%;
       }
 
       body {
-        font-family:      var(--font-body);
-        font-size:        var(--text-md);
-        font-weight:      400;
-        line-height:      1.6;
-        color:            var(--cd-text);
-        background-color: var(--cd-black);
-        -webkit-font-smoothing:  antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        overflow-x:       hidden;
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-columns: 100%;
+        min-height: 100%;
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: 0.06rem;
+        line-height: calc(1 + 0.8 / var(--font-body-scale));
+        font-family: var(--font-body-family);
+        font-style: var(--font-body-style);
+        font-weight: var(--font-body-weight);
       }
 
-      /* â”€â”€ Noise texture overlay â€” full-site grain â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-        opacity: 0.03;
-        pointer-events: none;
-        z-index: var(--z-toast);
-        animation: noise-drift 8s steps(2) infinite;
-      }
-
-      @keyframes noise-drift {
-        0%, 100% { transform: translate(0, 0); }
-        10%       { transform: translate(-1px, 1px); }
-        20%       { transform: translate(1px, -1px); }
-        30%       { transform: translate(-2px, -1px); }
-        40%       { transform: translate(1px, 2px); }
-        50%       { transform: translate(-1px, 1px); }
-        60%       { transform: translate(2px, -2px); }
-        70%       { transform: translate(0px, 2px); }
-        80%       { transform: translate(-2px, 0px); }
-        90%       { transform: translate(1px, -1px); }
-      }
-
-      /* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      h1, h2, h3, h4, h5, h6 {
-        font-family:    var(--font-display);
-        letter-spacing: 0.04em;
-        line-height:    1.05;
-        color:          var(--cd-white);
-        text-transform: uppercase;
-      }
-
-      h1 { font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl)); }
-      h2 { font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl)); }
-      h3 { font-size: clamp(var(--text-xl),  3vw, var(--text-3xl)); }
-      h4 { font-size: var(--text-2xl); }
-      h5 { font-size: var(--text-xl); }
-      h6 { font-size: var(--text-lg); }
-
-      p { margin-bottom: var(--space-4); }
-      p:last-child { margin-bottom: 0; }
-
-      a {
-        color: var(--cd-neon-red);
-        text-decoration: none;
-        transition: color var(--ease-fast), opacity var(--ease-fast);
-      }
-
-      a:hover { color: var(--cd-white); }
-
-      img, video {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
-
-      button, [role="button"] {
-        cursor: pointer;
-        font-family: var(--font-body);
-        border: none;
-        background: none;
-      }
-
-      input, select, textarea {
-        font-family: var(--font-body);
-        font-size:   var(--text-base);
-        color:       var(--cd-text);
-        background:  var(--cd-surface-2);
-        border:      1px solid var(--cd-surface-3);
-        border-radius: var(--radius-sm);
-        padding:     var(--space-3) var(--space-4);
-        transition:  border-color var(--ease-fast), box-shadow var(--ease-fast);
-        outline:     none;
-        width:       100%;
-      }
-
-      input:focus, select:focus, textarea:focus {
-        border-color: var(--cd-neon-red);
-        box-shadow:   0 0 0 2px rgba(255, 26, 26, 0.15);
-      }
-
-      /* â”€â”€ Layout helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .page-wrapper {
-        min-height: 100vh;
-        display:    flex;
-        flex-direction: column;
-      }
-
-      .page-main {
-        flex: 1;
-        padding-top: var(--nav-height);
-      }
-
-      .container {
-        max-width:  var(--content-width);
-        margin:     0 auto;
-        padding:    0 var(--page-padding);
-      }
-
-      .container--wide {
-        max-width: var(--max-width);
-        margin:    0 auto;
-        padding:   0 var(--page-padding);
-      }
-
-      .container--narrow {
-        max-width: 800px;
-        margin:    0 auto;
-        padding:   0 var(--page-padding);
-      }
-
-      /* â”€â”€ Utility classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .visually-hidden {
-        position:   absolute;
-        width:      1px;
-        height:     1px;
-        padding:    0;
-        margin:     -1px;
-        overflow:   hidden;
-        clip:       rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border:     0;
-      }
-
-      .text-neon   { color: var(--cd-neon-red); }
-      .text-blood  { color: var(--cd-blood-red); }
-      .text-muted  { color: var(--cd-text-muted); }
-      .text-mono   { font-family: var(--font-mono); }
-      .text-upper  { text-transform: uppercase; letter-spacing: 0.1em; }
-
-      .glow-red    { text-shadow: var(--cd-glow-red); }
-      .glow-border { box-shadow: inset 0 0 0 1px var(--cd-neon-red), var(--cd-glow-red); }
-
-      .divider {
-        border: none;
-        border-top: 1px solid var(--cd-surface-3);
-        margin: var(--space-8) 0;
-      }
-
-      .divider--red {
-        border-top-color: var(--cd-blood-red);
-      }
-
-      /* â”€â”€ Button system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .btn {
-        display:         inline-flex;
-        align-items:     center;
-        justify-content: center;
-        gap:             var(--space-2);
-        font-family:     var(--font-display);
-        font-size:       var(--text-lg);
-        letter-spacing:  0.08em;
-        text-transform:  uppercase;
-        padding:         var(--space-3) var(--space-8);
-        border-radius:   var(--radius-sharp);
-        transition:      all var(--ease-med);
-        position:        relative;
-        overflow:        hidden;
-        cursor:          pointer;
-        white-space:     nowrap;
-      }
-
-      .btn::before {
-        content:    '';
-        position:   absolute;
-        inset:      0;
-        background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.05));
-        opacity:    0;
-        transition: opacity var(--ease-med);
-      }
-
-      .btn:hover::before { opacity: 1; }
-
-      .btn--primary {
-        background: var(--cd-neon-red);
-        color:      var(--cd-black);
-        border:     2px solid var(--cd-neon-red);
-      }
-
-      .btn--primary:hover {
-        background:  var(--cd-blood-red);
-        border-color: var(--cd-blood-red);
-        color:       var(--cd-white);
-        box-shadow:  var(--cd-glow-red);
-        transform:   translateY(-1px);
-      }
-
-      .btn--outline {
-        background:   transparent;
-        color:        var(--cd-neon-red);
-        border:       2px solid var(--cd-neon-red);
-      }
-
-      .btn--outline:hover {
-        background: var(--cd-neon-red);
-        color:      var(--cd-black);
-        box-shadow: var(--cd-glow-red);
-        transform:  translateY(-1px);
-      }
-
-      .btn--ghost {
-        background: transparent;
-        color:      var(--cd-text-muted);
-        border:     1px solid var(--cd-surface-3);
-      }
-
-      .btn--ghost:hover {
-        border-color: var(--cd-neon-red);
-        color:        var(--cd-neon-red);
-      }
-
-      .btn--lg { padding: var(--space-4) var(--space-12); font-size: var(--text-xl); }
-      .btn--sm { padding: var(--space-2) var(--space-4);  font-size: var(--text-base); }
-
-      .btn[disabled], .btn.loading {
-        opacity: 0.5;
-        cursor:  not-allowed;
-        pointer-events: none;
-      }
-
-      /* â”€â”€ Loading spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .spinner {
-        width:  20px;
-        height: 20px;
-        border: 2px solid var(--cd-surface-3);
-        border-top-color: var(--cd-neon-red);
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-      }
-
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-      /* â”€â”€ Page overlay (cart, modal bg) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .overlay {
-        position:   fixed;
-        inset:      0;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(2px);
-        z-index:    var(--z-overlay);
-        opacity:    0;
-        visibility: hidden;
-        transition: opacity var(--ease-med), visibility var(--ease-med);
-      }
-
-      .overlay.is-active {
-        opacity:    1;
-        visibility: visible;
-      }
-
-      /* â”€â”€ Red accent bar â€” reusable section divider â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .accent-bar {
-        display: block;
-        width:   48px;
-        height:  3px;
-        background: linear-gradient(90deg, var(--cd-neon-red), var(--cd-blood-red));
-        margin-bottom: var(--space-4);
-      }
-
-      .accent-bar--center { margin-left: auto; margin-right: auto; }
-
-      /* â”€â”€ Announce badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      .badge {
-        display:        inline-flex;
-        align-items:    center;
-        font-family:    var(--font-display);
-        font-size:      var(--text-xs);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        padding:        2px 8px;
-        border-radius:  var(--radius-sharp);
-      }
-
-      .badge--new    { background: var(--cd-neon-red);  color: var(--cd-black); }
-      .badge--sold   { background: var(--cd-surface-3); color: var(--cd-text-muted); }
-      .badge--limited { background: var(--cd-blood-red); color: var(--cd-white); }
-
-      /* â”€â”€ Focus visible â€” accessibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      :focus-visible {
-        outline:        2px solid var(--cd-neon-red);
-        outline-offset: 3px;
-      }
-
-      /* â”€â”€ Media: reduced motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-          animation-duration:   0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration:  0.01ms !important;
+      @media screen and (min-width: 750px) {
+        body {
+          font-size: 1.6rem;
         }
-
-        body::before { animation: none; }
       }
+    {% endstyle %}
 
-      /* â”€â”€ Responsive base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-      @media (max-width: 768px) {
-        :root { --nav-height: 56px; }
-        h1 { font-size: clamp(var(--text-2xl), 10vw, var(--text-3xl)); }
-      }
-    </style>
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
-    <!-- ============================================================
-         LINKED ASSET STYLESHEETS
-         Load order: animations â†’ theme â†’ section-specific
-    ============================================================ -->
-    {{ 'animations.css' | asset_url | stylesheet_tag }}
-    {{ 'theme.css'      | asset_url | stylesheet_tag }}
-
-    <!-- ============================================================
-         STRUCTURED DATA â€” Organisation schema
-    ============================================================ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": {{ shop.name | json }},
-      "url": {{ shop.url | json }}
-      {%- if settings.social_instagram_link != blank -%}
-      ,"sameAs": [{{ settings.social_instagram_link | json }}]
-      {%- endif -%}
-    }
-    </script>
-
-    {%- if request.page_type == 'index' -%}
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": {{ shop.name | json }},
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": {{ routes.search_url | append: '?q={search_term_string}' | json }}
-        },
-        "query-input": "required name=search_term_string"
-      },
-      "url": {{ shop.url | json }}
-    }
-    </script>
+    {%- if settings.cart_type == 'drawer' -%}
+      {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
+      {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+      {{ 'component-totals.css' | asset_url | stylesheet_tag }}
+      {{ 'component-price.css' | asset_url | stylesheet_tag }}
+      {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
 
-    {%- if request.page_type == 'product' -%}
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": {{ product.title | json }},
-      "description": {{ product.descrip
+    {%- unless settings.type_body_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+    {%- unless settings.type_header_font.system? -%}
+      {% comment %}theme-check-disable AssetPreload{% endcomment %}
+      <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+      {% comment %}theme-check-enable AssetPreload{% endcomment %}
+    {%- endunless -%}
+
+    {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+      {{ 'component-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
+      <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- if settings.predictive_search_enabled -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'component-predictive-search.css' | asset_url }}"
+        media="print"
+        onload="this.media='all'"
+      >
+    {%- endif -%}
+
+    <script>
+      if (Shopify.designMode) {
+        document.documentElement.classList.add('shopify-design-mode');
+      }
+    </script>
+  </head>
+
+  <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    <a class="skip-to-content-link button visually-hidden" href="#MainContent">
+      {{ 'accessibility.skip_to_text' | t }}
+    </a>
+
+    {%- if settings.cart_type == 'drawer' -%}
+      {%- render 'cart-drawer' -%}
+    {%- endif -%}
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    <ul hidden>
+      <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>
+      <li id="a11y-new-window-message">{{ 'accessibility.link_messages.new_window' | t }}</li>
+    </ul>
+
+    <script>
+      window.shopUrl = '{{ request.origin }}';
+      window.routes = {
+        cart_add_url: '{{ routes.cart_add_url }}',
+        cart_change_url: '{{ routes.cart_change_url }}',
+        cart_update_url: '{{ routes.cart_update_url }}',
+        cart_url: '{{ routes.cart_url }}',
+        predictive_search_url: '{{ routes.predictive_search_url }}',
+      };
+
+      window.cartStrings = {
+        error: `{{ 'sections.cart.cart_error' | t }}`,
+        quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+      };
+
+      window.variantStrings = {
+        addToCart: `{{ 'products.product.add_to_cart' | t }}`,
+        soldOut: `{{ 'products.product.sold_out' | t }}`,
+        unavailable: `{{ 'products.product.unavailable' | t }}`,
+        unavailable_with_option: `{{ 'products.product.value_unavailable' | t: option_value: '[value]' }}`,
+      };
+
+      window.quickOrderListStrings = {
+        itemsAdded: `{{ 'sections.quick_order_list.items_added.other' | t: quantity: '[quantity]' }}`,
+        i
