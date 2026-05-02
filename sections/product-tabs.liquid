@@ -1,0 +1,80 @@
+{% comment %}
+  CHAKRADRIP — product-tabs.liquid
+  Description / Size Guide / Care tabs on PDP
+{% endcomment %}
+
+<section class="product-tabs section--sm">
+  <div class="container--wide">
+    <div class="tabs" data-tabs>
+      <div class="tabs__nav" role="tablist">
+        <button class="tabs__btn is-active" role="tab" aria-selected="true"  aria-controls="tab-desc"  id="btn-desc">Description</button>
+        <button class="tabs__btn"           role="tab" aria-selected="false" aria-controls="tab-size"  id="btn-size">Size & Fit</button>
+        <button class="tabs__btn"           role="tab" aria-selected="false" aria-controls="tab-care"  id="btn-care">Care</button>
+        <button class="tabs__btn"           role="tab" aria-selected="false" aria-controls="tab-ship"  id="btn-ship">Shipping</button>
+      </div>
+
+      <div id="tab-desc" class="tabs__panel is-active rte" role="tabpanel" aria-labelledby="btn-desc">
+        {{ product.description }}
+      </div>
+
+      <div id="tab-size" class="tabs__panel rte" role="tabpanel" aria-labelledby="btn-size">
+        {%- if section.settings.size_fit_content != blank -%}
+          {{ section.settings.size_fit_content }}
+        {%- else -%}
+          <p>CHAKRADRIP tees are designed with an <strong>oversized, boxy fit</strong>. We recommend sizing down if you prefer a more fitted silhouette.</p>
+          <p>Model is 5'11" / 180cm and wears size M.</p>
+        {%- endif -%}
+      </div>
+
+      <div id="tab-care" class="tabs__panel rte" role="tabpanel" aria-labelledby="btn-care">
+        {%- if section.settings.care_content != blank -%}
+          {{ section.settings.care_content }}
+        {%- else -%}
+          <ul>
+            <li>Machine wash cold, inside out</li>
+            <li>Do not bleach</li>
+            <li>Tumble dry low or hang dry</li>
+            <li>Do not iron directly on print</li>
+          </ul>
+        {%- endif -%}
+      </div>
+
+      <div id="tab-ship" class="tabs__panel rte" role="tabpanel" aria-labelledby="btn-ship">
+        {%- if section.settings.shipping_content != blank -%}
+          {{ section.settings.shipping_content }}
+        {%- else -%}
+          <p>Orders ship within <strong>2–3 business days</strong>. You'll receive a tracking link by email.</p>
+          <p>Free shipping on orders over $75.</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelector('[data-tabs]')?.addEventListener('click', e => {
+    const btn = e.target.closest('.tabs__btn');
+    if (!btn) return;
+    const tabs = btn.closest('[data-tabs]');
+    tabs.querySelectorAll('.tabs__btn').forEach(b => {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    tabs.querySelectorAll('.tabs__panel').forEach(p => p.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    btn.setAttribute('aria-selected', 'true');
+    tabs.querySelector('#' + btn.getAttribute('aria-controls'))?.classList.add('is-active');
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Tabs",
+  "settings": [
+    { "type": "richtext", "id": "size_fit_content",  "label": "Size & Fit content" },
+    { "type": "richtext", "id": "care_content",      "label": "Care content" },
+    { "type": "richtext", "id": "shipping_content",  "label": "Shipping content" }
+  ],
+  "presets": [{ "name": "Product Tabs" }]
+}
+{% endschema %}
