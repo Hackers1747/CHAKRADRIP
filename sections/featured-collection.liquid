@@ -1,0 +1,131 @@
+{% comment %}
+  CHAKRADRIP — featured-collection.liquid
+  Homepage featured product grid with header + view all CTA
+{% endcomment %}
+
+{%- assign collection = collections[section.settings.collection] -%}
+{%- assign product_limit = section.settings.product_limit | default: 4 -%}
+
+<section class="section featured-collection" id="featured-collection">
+  <div class="container--wide">
+
+    <div class="section__header" data-reveal>
+      <div>
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="featured-collection__eyebrow">
+            <span class="featured-collection__eyebrow-dot"></span>
+            {{ section.settings.eyebrow }}
+          </p>
+        {%- endif -%}
+        <h2 class="section__title">{{ section.settings.heading | default: 'Latest Drops' }}</h2>
+      </div>
+
+      {%- if collection != blank and section.settings.show_view_all -%}
+        <a href="{{ collection.url }}" class="section__link">
+          View All
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- if collection != blank and collection.products_count > 0 -%}
+      <div class="product-grid">
+        {%- for product in collection.products limit: product_limit -%}
+          <div class="animate-fade-up" style="animation-delay: {{ forloop.index0 | times: 0.08 }}s;">
+            {%- render 'product-card', product: product -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.settings.show_view_all and collection.products_count > product_limit -%}
+        <div class="featured-collection__cta">
+          <a href="{{ collection.url }}" class="btn btn--outline btn--lg">
+            Shop All Drops
+          </a>
+        </div>
+      {%- endif -%}
+
+    {%- else -%}
+      <div class="empty-state">
+        <p class="empty-state__title">No products yet</p>
+        <p class="empty-state__text">Add products to this collection in your Shopify admin.</p>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+<style>
+  .featured-collection__eyebrow {
+    display:        flex;
+    align-items:    center;
+    gap:            var(--space-3);
+    font-family:    var(--font-mono);
+    font-size:      var(--text-xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color:          var(--cd-neon-red);
+    margin-bottom:  var(--space-2);
+  }
+
+  .featured-collection__eyebrow-dot {
+    display:       inline-block;
+    width:         6px;
+    height:        6px;
+    background:    var(--cd-neon-red);
+    border-radius: 50%;
+    flex-shrink:   0;
+    box-shadow:    var(--cd-glow-red);
+    animation:     pulse-red 2s ease-in-out infinite;
+  }
+
+  .featured-collection__cta {
+    text-align:  center;
+    margin-top:  var(--space-12);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Featured Collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Fresh Off The Spirit Realm"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "Latest Drops"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "min": 2,
+      "max": 12,
+      "step": 2,
+      "default": 4,
+      "label": "Number of products"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show view all button",
+      "default": true
+    }
+  ],
+  "presets": [
+    { "name": "Featured Collection" }
+  ]
+}
+{% endschema %}
