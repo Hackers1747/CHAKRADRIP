@@ -1,0 +1,152 @@
+{% comment %}
+  CHAKRADRIP — announcement-bar.liquid
+  Scrolling marquee with NEW DROP messages
+{% endcomment %}
+
+{%- if section.settings.show_announcement -%}
+<div
+  class="announcement-bar"
+  role="complementary"
+  aria-label="Announcements"
+  style="--marquee-speed: {{ section.settings.speed }}s;"
+>
+  <div class="announcement-bar__track">
+    <div class="announcement-bar__inner" aria-hidden="true">
+      {%- for block in section.blocks -%}
+        <span class="announcement-bar__item" {{ block.shopify_attributes }}>
+          <span class="announcement-bar__dot">◆</span>
+          {%- if block.settings.url != blank -%}
+            <a href="{{ block.settings.url }}">{{ block.settings.text }}</a>
+          {%- else -%}
+            {{ block.settings.text }}
+          {%- endif -%}
+        </span>
+      {%- endfor -%}
+      {%- comment %} Duplicate for seamless loop {%- endcomment -%}
+      {%- for block in section.blocks -%}
+        <span class="announcement-bar__item">
+          <span class="announcement-bar__dot">◆</span>
+          {%- if block.settings.url != blank -%}
+            <a href="{{ block.settings.url }}">{{ block.settings.text }}</a>
+          {%- else -%}
+            {{ block.settings.text }}
+          {%- endif -%}
+        </span>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+<style>
+  .announcement-bar {
+    background:   var(--cd-blood-red);
+    overflow:     hidden;
+    height:       36px;
+    display:      flex;
+    align-items:  center;
+    position:     relative;
+    z-index:      calc(var(--z-sticky) + 1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .announcement-bar__track {
+    width:     100%;
+    overflow:  hidden;
+  }
+
+  .announcement-bar__inner {
+    display:    inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    animation:  marquee var(--marquee-speed, 30s) linear infinite;
+  }
+
+  .announcement-bar:hover .announcement-bar__inner {
+    animation-play-state: paused;
+  }
+
+  .announcement-bar__item {
+    display:        inline-flex;
+    align-items:    center;
+    gap:            var(--space-3);
+    font-family:    var(--font-display);
+    font-size:      var(--text-sm);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color:          var(--cd-white);
+    padding:        0 var(--space-8);
+  }
+
+  .announcement-bar__item a {
+    color:           var(--cd-white);
+    text-decoration: underline;
+    text-decoration-color: rgba(255,255,255,0.4);
+  }
+
+  .announcement-bar__item a:hover {
+    text-decoration-color: var(--cd-white);
+  }
+
+  .announcement-bar__dot {
+    font-size:  8px;
+    opacity:    0.6;
+    flex-shrink: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .announcement-bar__inner { animation: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement bar",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Scroll speed (seconds)",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "default": 25
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Message",
+          "default": "NEW DROP — LIMITED UNITS AVAILABLE"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement Bar",
+      "blocks": [
+        { "type": "announcement", "settings": { "text": "NEW DROP — LIMITED UNITS AVAILABLE" } },
+        { "type": "announcement", "settings": { "text": "FREE SHIPPING ON ORDERS OVER $75" } },
+        { "type": "announcement", "settings": { "text": "WHERE CHAKRA FLOWS, DRIP FOLLOWS" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
