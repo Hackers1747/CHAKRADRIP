@@ -1,0 +1,258 @@
+{% comment %}
+  CHAKRADRIP — drop-countdown.liquid
+  Countdown timer for limited drops
+{% endcomment %}
+
+{%- if section.settings.show_countdown -%}
+<section class="drop-countdown" id="drop-countdown">
+  <div class="drop-countdown__bg" aria-hidden="true"></div>
+
+  <div class="container drop-countdown__inner">
+    <div class="drop-countdown__left" data-reveal>
+      {%- if section.settings.label != blank -%}
+        <p class="drop-countdown__label">
+          <span class="drop-countdown__pulse"></span>
+          {{ section.settings.label }}
+        </p>
+      {%- endif -%}
+      <h2 class="drop-countdown__title">{{ section.settings.heading | default: 'Next Drop' }}</h2>
+      {%- if section.settings.subtext != blank -%}
+        <p class="drop-countdown__subtext">{{ section.settings.subtext }}</p>
+      {%- endif -%}
+      {%- if section.settings.cta_text != blank -%}
+        <a href="{{ section.settings.cta_url }}" class="btn btn--outline">
+          {{ section.settings.cta_text }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="drop-countdown__timer" data-countdown="{{ section.settings.end_date }}" aria-live="polite">
+      <div class="countdown-unit">
+        <span class="countdown-number" data-days>00</span>
+        <span class="countdown-label">Days</span>
+      </div>
+      <span class="countdown-sep" aria-hidden="true">:</span>
+      <div class="countdown-unit">
+        <span class="countdown-number" data-hours>00</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <span class="countdown-sep" aria-hidden="true">:</span>
+      <div class="countdown-unit">
+        <span class="countdown-number" data-minutes>00</span>
+        <span class="countdown-label">Mins</span>
+      </div>
+      <span class="countdown-sep" aria-hidden="true">:</span>
+      <div class="countdown-unit">
+        <span class="countdown-number" data-seconds>00</span>
+        <span class="countdown-label">Secs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .drop-countdown {
+    position:   relative;
+    padding:    var(--space-16) 0;
+    overflow:   hidden;
+    background: var(--cd-surface-1);
+    border-top:    1px solid var(--cd-surface-3);
+    border-bottom: 1px solid var(--cd-surface-3);
+  }
+
+  .drop-countdown__bg {
+    position:   absolute;
+    inset:      0;
+    background:
+      radial-gradient(ellipse at left center, rgba(139,0,0,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at right center, rgba(139,0,0,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .drop-countdown__inner {
+    position:    relative;
+    display:     flex;
+    align-items: center;
+    justify-content: space-between;
+    gap:         var(--space-12);
+    flex-wrap:   wrap;
+  }
+
+  .drop-countdown__label {
+    display:        flex;
+    align-items:    center;
+    gap:            var(--space-3);
+    font-family:    var(--font-mono);
+    font-size:      var(--text-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color:          var(--cd-neon-red);
+    margin-bottom:  var(--space-3);
+  }
+
+  .drop-countdown__pulse {
+    display:       inline-block;
+    width:         8px;
+    height:        8px;
+    background:    var(--cd-neon-red);
+    border-radius: 50%;
+    animation:     pulse-red 1.5s ease-in-out infinite;
+    flex-shrink:   0;
+  }
+
+  .drop-countdown__title {
+    font-size:     clamp(var(--text-2xl), 4vw, var(--text-4xl));
+    margin-bottom: var(--space-4);
+  }
+
+  .drop-countdown__subtext {
+    color:         var(--cd-text-muted);
+    margin-bottom: var(--space-6);
+    max-width:     400px;
+  }
+
+  /* ── Timer ───────────────────────────────────────────── */
+  .drop-countdown__timer {
+    display:     flex;
+    align-items: center;
+    gap:         var(--space-4);
+    flex-shrink: 0;
+  }
+
+  .countdown-unit {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            var(--space-2);
+    min-width:      80px;
+  }
+
+  .countdown-number {
+    font-family:    var(--font-display);
+    font-size:      clamp(var(--text-3xl), 5vw, var(--text-4xl));
+    color:          var(--cd-neon-red);
+    line-height:    1;
+    text-shadow:    var(--cd-glow-red);
+    background:     var(--cd-surface-2);
+    border:         1px solid var(--cd-surface-3);
+    border-radius:  var(--radius-sm);
+    padding:        var(--space-3) var(--space-4);
+    min-width:      80px;
+    text-align:     center;
+    transition:     color var(--ease-fast);
+  }
+
+  .countdown-label {
+    font-family:    var(--font-mono);
+    font-size:      var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+  }
+
+  .countdown-sep {
+    font-family: var(--font-display);
+    font-size:   var(--text-4xl);
+    color:       var(--cd-blood-red);
+    margin-bottom: var(--space-6);
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    .drop-countdown__inner { justify-content: center; text-align: center; }
+    .drop-countdown__timer { justify-content: center; }
+    .countdown-unit        { min-width: 60px; }
+    .countdown-number      { font-size: var(--text-2xl); min-width: 60px; }
+    .drop-countdown__subtext { margin: 0 auto var(--space-6); }
+  }
+</style>
+
+<script>
+  (function() {
+    const el = document.querySelector('[data-countdown]');
+    if (!el) return;
+    const endDate = new Date(el.dataset.countdown);
+    if (isNaN(endDate)) return;
+
+    const days    = el.querySelector('[data-days]');
+    const hours   = el.querySelector('[data-hours]');
+    const minutes = el.querySelector('[data-minutes]');
+    const seconds = el.querySelector('[data-seconds]');
+
+    const pad = n => String(Math.max(0, n)).padStart(2, '0');
+
+    function tick() {
+      const diff = endDate - Date.now();
+      if (diff <= 0) {
+        el.innerHTML = '<p class="countdown-label" style="font-size:var(--text-xl);color:var(--cd-neon-red);">DROP IS LIVE 🔥</p>';
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      days.textContent    = pad(d);
+      hours.textContent   = pad(h);
+      minutes.textContent = pad(m);
+      seconds.textContent = pad(s);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Drop Countdown",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_countdown",
+      "label": "Show countdown",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "Limited Drop"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Next Drop Incoming"
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Limited units. No restocks. You either got it or you didn't."
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Countdown end date (ISO 8601)",
+      "info": "Format: 2025-12-01T00:00:00",
+      "default": "2025-12-01T00:00:00"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "Notify Me"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button URL"
+    }
+  ],
+  "presets": [
+    { "name": "Drop Countdown" }
+  ]
+}
+{% endschema %}
