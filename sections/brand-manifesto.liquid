@@ -1,0 +1,280 @@
+{% comment %}
+  CHAKRADRIP — brand-manifesto.liquid
+  Full-width brand story / manifesto section
+{% endcomment %}
+
+<section class="manifesto section" id="manifesto">
+  <div class="manifesto__bg" aria-hidden="true"></div>
+
+  <div class="container manifesto__inner">
+
+    {%- if section.settings.image != blank -%}
+      <div class="manifesto__media" data-reveal>
+        <img
+          src="{{ section.settings.image | image_url: width: 700 }}"
+          alt="{{ section.settings.image.alt | escape | default: shop.name }}"
+          loading="lazy"
+          width="700"
+          height="900"
+          class="manifesto__image"
+        >
+        <div class="manifesto__image-border" aria-hidden="true"></div>
+      </div>
+    {%- endif -%}
+
+    <div class="manifesto__content" data-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="manifesto__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      <h2 class="manifesto__heading">{{ section.settings.heading | default: 'Who Is Chakradrip' }}</h2>
+
+      {%- if section.settings.body != blank -%}
+        <div class="manifesto__body rte">
+          {{ section.settings.body }}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.stat_1_value != blank or section.settings.stat_2_value != blank -%}
+        <div class="manifesto__stats">
+          {%- if section.settings.stat_1_value != blank -%}
+            <div class="manifesto__stat">
+              <span class="manifesto__stat-value">{{ section.settings.stat_1_value }}</span>
+              <span class="manifesto__stat-label">{{ section.settings.stat_1_label }}</span>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.stat_2_value != blank -%}
+            <div class="manifesto__stat">
+              <span class="manifesto__stat-value">{{ section.settings.stat_2_value }}</span>
+              <span class="manifesto__stat-label">{{ section.settings.stat_2_label }}</span>
+            </div>
+          {%- endif -%}
+          {%- if section.settings.stat_3_value != blank -%}
+            <div class="manifesto__stat">
+              <span class="manifesto__stat-value">{{ section.settings.stat_3_value }}</span>
+              <span class="manifesto__stat-label">{{ section.settings.stat_3_label }}</span>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.cta_text != blank -%}
+        <a href="{{ section.settings.cta_url }}" class="btn btn--outline">
+          {{ section.settings.cta_text }}
+        </a>
+      {%- endif -%}
+    </div>
+
+  </div>
+
+  <!-- Large decorative text -->
+  {%- if section.settings.show_bg_text -%}
+    <p class="manifesto__bg-text" aria-hidden="true">CHAKRA</p>
+  {%- endif -%}
+</section>
+
+<style>
+  .manifesto {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .manifesto__bg {
+    position: absolute;
+    inset:    0;
+    background: radial-gradient(ellipse at right bottom, rgba(139,0,0,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .manifesto__inner {
+    position: relative;
+    display:  grid;
+    grid-template-columns: 1fr 1fr;
+    gap:      var(--space-16);
+    align-items: center;
+    z-index:  1;
+  }
+
+  /* ── Media ───────────────────────────────────────────── */
+  .manifesto__media {
+    position: relative;
+  }
+
+  .manifesto__image {
+    width:         100%;
+    height:        auto;
+    aspect-ratio:  3 / 4;
+    object-fit:    cover;
+    border-radius: var(--radius-sm);
+    filter:        saturate(0.85) contrast(1.05);
+  }
+
+  .manifesto__image-border {
+    position:     absolute;
+    inset:        -1px;
+    border:       1px solid var(--cd-blood-red);
+    border-radius: var(--radius-sm);
+    transform:    translate(8px, 8px);
+    pointer-events: none;
+    opacity:      0.5;
+  }
+
+  /* ── Content ─────────────────────────────────────────── */
+  .manifesto__eyebrow {
+    font-family:    var(--font-mono);
+    font-size:      var(--text-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color:          var(--cd-neon-red);
+    margin-bottom:  var(--space-4);
+  }
+
+  .manifesto__heading {
+    margin-bottom: var(--space-6);
+    font-size:     clamp(var(--text-2xl), 4vw, var(--text-4xl));
+  }
+
+  .manifesto__body {
+    margin-bottom: var(--space-8);
+  }
+
+  /* ── Stats ───────────────────────────────────────────── */
+  .manifesto__stats {
+    display:       flex;
+    gap:           var(--space-8);
+    margin-bottom: var(--space-8);
+    flex-wrap:     wrap;
+  }
+
+  .manifesto__stat {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--space-1);
+  }
+
+  .manifesto__stat-value {
+    font-family: var(--font-display);
+    font-size:   var(--text-3xl);
+    color:       var(--cd-neon-red);
+    line-height: 1;
+    text-shadow: var(--cd-glow-red);
+  }
+
+  .manifesto__stat-label {
+    font-family:    var(--font-mono);
+    font-size:      var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color:          var(--cd-text-muted);
+  }
+
+  /* ── Decorative bg text ──────────────────────────────── */
+  .manifesto__bg-text {
+    position:    absolute;
+    bottom:      -0.2em;
+    right:       -0.05em;
+    font-family: var(--font-display);
+    font-size:   clamp(8rem, 18vw, 18rem);
+    color:       transparent;
+    -webkit-text-stroke: 1px var(--cd-surface-3);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    z-index:     0;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 768px) {
+    .manifesto__inner { grid-template-columns: 1fr; }
+    .manifesto__media { order: -1; max-width: 360px; margin: 0 auto; }
+    .manifesto__stats { justify-content: center; }
+    .manifesto__bg-text { display: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Brand Manifesto",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "The Origin"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Who Is CHAKRADRIP"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body text",
+      "default": "<p>Born from the energy between worlds. CHAKRADRIP is not a brand — it's a frequency. We create for those who channel their inner power through what they wear.</p><p>Every piece is a ritual. Every drop is a statement.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_value",
+      "label": "Stat 1 value",
+      "default": "7"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_label",
+      "label": "Stat 1 label",
+      "default": "Chakras Activated"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_value",
+      "label": "Stat 2 value",
+      "default": "100%"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_label",
+      "label": "Stat 2 label",
+      "default": "Original Design"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_value",
+      "label": "Stat 3 value",
+      "default": "No Restock"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_label",
+      "label": "Stat 3 label",
+      "default": "Ever"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "Our Story"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bg_text",
+      "label": "Show decorative background text",
+      "default": true
+    }
+  ],
+  "presets": [
+    { "name": "Brand Manifesto" }
+  ]
+}
+{% endschema %}
