@@ -1,0 +1,321 @@
+{% comment %}
+  CHAKRADRIP — hero-banner.liquid
+  Full-screen animated glitch hero section
+{% endcomment %}
+
+<section class="hero" id="hero">
+  {%- if section.settings.bg_video != blank -%}
+    <video
+      class="hero__bg-video"
+      src="{{ section.settings.bg_video }}"
+      autoplay muted loop playsinline
+      aria-hidden="true"
+    ></video>
+  {%- elsif section.settings.bg_image != blank -%}
+    <div class="hero__bg-image">
+      <img
+        src="{{ section.settings.bg_image | image_url: width: 1920 }}"
+        alt=""
+        role="presentation"
+        loading="eager"
+        fetchpriority="high"
+        width="1920"
+        height="1080"
+      >
+    </div>
+  {%- endif -%}
+
+  <!-- Scanlines overlay -->
+  <div class="hero__scanlines" aria-hidden="true"></div>
+
+  <!-- Red vignette -->
+  <div class="hero__vignette" aria-hidden="true"></div>
+
+  <!-- Content -->
+  <div class="hero__content container">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="hero__eyebrow animate-fade-up">
+        <span class="hero__eyebrow-line"></span>
+        {{ section.settings.eyebrow }}
+      </p>
+    {%- endif -%}
+
+    <h1
+      class="hero__title animate-fade-up animate-delay-1"
+      {%- if section.settings.enable_glitch -%}
+        data-glitch="{{ section.settings.heading }}"
+      {%- endif -%}
+    >
+      {{ section.settings.heading }}
+    </h1>
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="hero__subheading animate-fade-up animate-delay-2">
+        {{ section.settings.subheading }}
+      </p>
+    {%- endif -%}
+
+    <div class="hero__ctas animate-fade-up animate-delay-3">
+      {%- if section.settings.cta_primary_text != blank -%}
+        <a
+          href="{{ section.settings.cta_primary_url }}"
+          class="btn btn--primary btn--lg"
+        >
+          {{ section.settings.cta_primary_text }}
+        </a>
+      {%- endif -%}
+      {%- if section.settings.cta_secondary_text != blank -%}
+        <a
+          href="{{ section.settings.cta_secondary_url }}"
+          class="btn btn--outline btn--lg"
+        >
+          {{ section.settings.cta_secondary_text }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="hero__scroll" aria-hidden="true">
+    <span class="hero__scroll-line"></span>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position:    relative;
+    min-height:  100svh;
+    display:     flex;
+    align-items: center;
+    overflow:    hidden;
+    background:  var(--cd-black);
+  }
+
+  /* ── Background ─────────────────────────────────────────── */
+  .hero__bg-image,
+  .hero__bg-video {
+    position:   absolute;
+    inset:      0;
+    z-index:    0;
+  }
+
+  .hero__bg-image img,
+  .hero__bg-video {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+    opacity:    0.35;
+    filter:     saturate(0.6) brightness(0.6);
+  }
+
+  /* ── Scanlines ──────────────────────────────────────────── */
+  .hero__scanlines {
+    position:   absolute;
+    inset:      0;
+    z-index:    1;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.12) 3px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* ── Red vignette ───────────────────────────────────────── */
+  .hero__vignette {
+    position:   absolute;
+    inset:      0;
+    z-index:    2;
+    background:
+      radial-gradient(ellipse at center, transparent 30%, rgba(10,10,10,0.8) 100%),
+      linear-gradient(180deg, transparent 60%, rgba(10,10,10,0.9) 100%);
+    pointer-events: none;
+  }
+
+  /* Red corner bleeds */
+  .hero__vignette::before {
+    content:  '';
+    position: absolute;
+    inset:    0;
+    background:
+      radial-gradient(ellipse at top left,   rgba(139,0,0,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(139,0,0,0.2) 0%, transparent 50%);
+  }
+
+  /* ── Content ────────────────────────────────────────────── */
+  .hero__content {
+    position:       relative;
+    z-index:        3;
+    padding-top:    calc(var(--nav-height) + var(--space-12));
+    padding-bottom: var(--space-24);
+    max-width:      900px;
+  }
+
+  .hero__eyebrow {
+    display:        flex;
+    align-items:    center;
+    gap:            var(--space-4);
+    font-family:    var(--font-mono);
+    font-size:      var(--text-sm);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color:          var(--cd-neon-red);
+    margin-bottom:  var(--space-4);
+  }
+
+  .hero__eyebrow-line {
+    display:    inline-block;
+    width:      40px;
+    height:     1px;
+    background: var(--cd-neon-red);
+    flex-shrink: 0;
+  }
+
+  .hero__title {
+    font-size:      clamp(3.5rem, 10vw, 8rem);
+    line-height:    0.95;
+    margin-bottom:  var(--space-6);
+    color:          var(--cd-white);
+  }
+
+  .hero__title[data-glitch] {
+    position: relative;
+    display:  inline-block;
+    animation: glitch-skew 4s infinite linear alternate-reverse;
+  }
+
+  .hero__title[data-glitch]::before,
+  .hero__title[data-glitch]::after {
+    content:  attr(data-glitch);
+    position: absolute;
+    inset:    0;
+  }
+
+  .hero__title[data-glitch]::before {
+    color:     var(--cd-neon-red);
+    animation: glitch-clip-1 3s infinite linear alternate-reverse;
+  }
+
+  .hero__title[data-glitch]::after {
+    color:     rgba(0, 255, 255, 0.6);
+    animation: glitch-clip-2 3.5s infinite linear alternate-reverse;
+  }
+
+  .hero__subheading {
+    font-size:      clamp(var(--text-base), 2vw, var(--text-xl));
+    color:          var(--cd-text-muted);
+    max-width:      520px;
+    line-height:    1.7;
+    margin-bottom:  var(--space-10);
+    font-weight:    400;
+  }
+
+  .hero__ctas {
+    display:     flex;
+    gap:         var(--space-4);
+    flex-wrap:   wrap;
+    align-items: center;
+  }
+
+  /* ── Scroll indicator ───────────────────────────────────── */
+  .hero__scroll {
+    position:   absolute;
+    bottom:     var(--space-8);
+    left:       50%;
+    transform:  translateX(-50%);
+    z-index:    3;
+  }
+
+  .hero__scroll-line {
+    display:    block;
+    width:      1px;
+    height:     60px;
+    background: linear-gradient(180deg, var(--cd-neon-red), transparent);
+    margin:     0 auto;
+    animation:  float 2s ease-in-out infinite;
+  }
+
+  @media (max-width: 768px) {
+    .hero__content { padding-top: calc(var(--nav-height) + var(--space-8)); }
+    .hero__ctas { flex-direction: column; align-items: flex-start; }
+    .hero__ctas .btn { width: 100%; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__title[data-glitch]::before,
+    .hero__title[data-glitch]::after { display: none; }
+    .hero__title[data-glitch] { animation: none; }
+    .hero__scroll-line { animation: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "bg_video",
+      "label": "Background video URL (mp4)"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "New Collection — 2025"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CHAKRADRIP"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_glitch",
+      "label": "Enable glitch effect on heading",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Where chakra flows, drip follows. Original anime-inspired streetwear for those who move in silence."
+    },
+    {
+      "type": "text",
+      "id": "cta_primary_text",
+      "label": "Primary button text",
+      "default": "Shop the Drop"
+    },
+    {
+      "type": "url",
+      "id": "cta_primary_url",
+      "label": "Primary button URL"
+    },
+    {
+      "type": "text",
+      "id": "cta_secondary_text",
+      "label": "Secondary button text",
+      "default": "Our Story"
+    },
+    {
+      "type": "url",
+      "id": "cta_secondary_url",
+      "label": "Secondary button URL"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner"
+    }
+  ]
+}
+{% endschema %}
